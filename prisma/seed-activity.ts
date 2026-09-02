@@ -36,6 +36,17 @@ async function main() {
   if (!school) throw new Error("Run prisma/seed.ts first");
   const year = school.academicYears[0];
 
+  // Idempotency guard: this script is not written to resume mid-run (invoice
+  // numbers are assigned from invoiceSeq=1 every time), so a second invocation
+  // — e.g. after the first was interrupted — collides on the unique
+  // (schoolId, invoiceNumber) constraint instead of continuing cleanly. Wipe
+  // this script's own output before regenerating it, the same way
+  // prisma/seed.ts wipes the school it owns before recreating it.
+  console.log("→ clearing any previous activity-seed data");
+  await db.feePayment.deleteMany({ where: { schoolId: school.id } });
+  await db.feeInvoice.deleteMany({ where: { schoolId: school.id } });
+  await db.studentConcession.deleteMany({ where: { schoolId: school.id } });
+
   const [students, classes, feeHeads, structures, concessionTypes, staff, subjects] = await Promise.all([
     db.student.findMany({ where: { schoolId: school.id }, orderBy: { admissionNumber: "asc" } }),
     db.class.findMany({ where: { schoolId: school.id }, orderBy: { sequenceOrder: "asc" }, include: { sections: true } }),
