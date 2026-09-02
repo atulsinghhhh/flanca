@@ -1,0 +1,78 @@
+name: Deploy Flanca to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ACR_NAME: flancaacr
+  IMAGE_NAME: flanca
+  RESOURCE_GROUP: flanca-rg
+  CONTAINER_APP: flanca-app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC, no stored secret)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to ACR
+        run: az acr login --name "${{ env.ACR_NAME }}"
+
+      # ubuntu-latest runners are amd64 already — matches the Dockerfile's
+      # target platform, unlike a local build on Apple Silicon.
+      - name: Build and push image
+        run: |
+          IMAGE_SHA="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          IMAGE_LATEST="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest"
+          docker build -t "$IMAGE_SHA" -t "$IMAGE_LATEST" .
+          docker push "$IMAGE_SHA"
+          docker push "$IMAGE_LATEST"
+
+      # DIRECT_DATABASE_URL only, never DATABASE_URL, per schema.prisma:
+      # migrate deploy needs the unpooled connection for advisory locks.
+      # DATABASE_URL is set to the same value only so Prisma can resolve
+      # the env var referenced in the datasource block; it is not used
+      # for the actual migration connection.
+      - name: Run Prisma migrations
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm exec prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+
+      - name: Deploy new image to Container Apps
+        run: |
+          az containerapp update \
+            --name "${{ env.CONTAINER_APP }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --image "${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+      - name: Verify health
+        run: |
+          FQDN=$(az containerapp show --name "${{ env.CONTAINER_APP }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query "properties.configuration.ingress.fqdn" -o tsv)
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$FQDN/api/health" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: status $STATUS, retrying..."
+            sleep 6
+          done
+          echo "Health check failed after deploy"
+          exit 1
