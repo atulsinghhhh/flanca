@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+
+# Flutter mobile app — separate deployable, not part of the backend image.
+mobile
+
+docs
+scripts/*.md
+*.tsbuildinfo
+.DS_Store
+.claude
+.vercel

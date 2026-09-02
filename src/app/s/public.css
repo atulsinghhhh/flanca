@@ -1,0 +1,112 @@
+/* ============================================================================
+   The school's own front door — "the gate board".
+   Scoped to .school-page so it never leaks into the admin app's design system.
+
+   The masthead is built as the enamelled board at a school gate: deep bottle
+   green, a gold hairline, and the affiliation numbers that are how an Indian
+   parent actually judges legitimacy.
+   ========================================================================== */
+
+.school-page {
+  --board: #14342b;
+  --board-deep: #0c221c;
+  --gold: #c9a227;
+  --paper: #fbf8f1;
+  --paper-2: #f3eee2;
+  --ink: #1a1a17;
+  --ink-2: #4a4a42;
+  --ink-3: #7b7a6f;
+  --rule: #ddd6c4;
+  --marigold: #e8912d;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.school-page .display {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+/*
+ * The app's global stylesheet colours every h1-h4 with an element selector,
+ * which beats plain inheritance from .board — so the school's name rendered
+ * near-black on near-black green. Anything inside the board states its own
+ * colour explicitly.
+ */
+.school-page .board .display,
+.school-page .board h1,
+.school-page .board h2,
+.school-page .board h3 {
+  color: #f6f3e9;
+}
+
+/* Small caps with wide tracking: the register of an official plaque. */
+.school-page .plaque {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.school-page .rule-gold {
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.55;
+}
+
+/* The gate board itself. */
+.school-page .board {
+  background: var(--board);
+  color: #f6f3e9;
+  position: relative;
+}
+
+.school-page .board::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  pointer-events: none;
+}
+
+/* The gold rule draws itself once on load — the only motion on the page. */
+@keyframes draw-rule {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.school-page .rule-draw {
+  transform-origin: left center;
+  animation: draw-rule 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .school-page .rule-draw {
+    animation: none;
+  }
+}
+
+.school-page .paper-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+}
+
+.school-page .ruled-row + .ruled-row {
+  border-top: 1px solid var(--rule);
+}
+
+.school-page .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.school-page a:focus-visible,
+.school-page button:focus-visible,
+.school-page input:focus-visible,
+.school-page select:focus-visible {
+  outline: 2px solid var(--board);
+  outline-offset: 2px;
+}

@@ -1,0 +1,58 @@
+{
+  "name": "flanca",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "next dev -p 3500",
+    "build": "node scripts/sync-suite-page.mjs && prisma generate && next build",
+    "start": "next start -p 3500",
+    "lint": "next lint",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts && tsx prisma/seed-activity.ts && tsx prisma/seed-academics.ts && tsx prisma/add-half-yearly.ts && tsx prisma/add-role-logins.ts && tsx prisma/fix-grades.ts",
+    "db:reset": "prisma migrate reset --force",
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "tsc": "tsc --noEmit",
+    "suite:sync": "node scripts/sync-suite-page.mjs",
+    "suite:check": "node scripts/sync-suite-page.mjs --check",
+    "db:deploy": "prisma migrate deploy",
+    "preflight": "tsx scripts/preflight.ts",
+    "verify-restore": "tsx scripts/verify-restore.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "jose": "^6.2.10",
+    "lucide-react": "^0.575.0",
+    "next": "^15.5.19",
+    "next-auth": "^5.0.0-beta.31",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "tailwind-merge": "^3.3.1",
+    "web-push": "^3.6.7",
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/node": "^22.19.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.4",
+    "@types/web-push": "^3.6.4",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.2.1",
+    "tsx": "^4.20.7",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
+  }
+}

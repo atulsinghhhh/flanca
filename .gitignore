@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel project link — machine-local
+.vercel
+.env*
+.DS_Store
+.claude/scheduled_tasks.lock

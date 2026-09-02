@@ -1,0 +1,366 @@
+/* ============================================================================
+   Flanca's landing page — "the staffroom sketchbook".
+   Scoped to .lp so it never leaks into the admin app's design system.
+
+   The admin product is a register: dense, quiet, tabular. This page is its
+   margin notes — chalky paper, deep bottle green ink (the same green the product
+   is built in), a saffron marker for emphasis, and a green blackboard band in
+   the middle of the page. Nothing here is a pastel-tech landing page; it is the
+   inside cover of a school exercise book.
+
+   Every rule is unlayered, which is how it beats globals.css's element
+   selectors on h1–h4 without a specificity fight.
+   ========================================================================== */
+
+.lp {
+  --paper: #f8f5ec; /* chalky register paper */
+  --paper-2: #f1ecdf; /* sunken panels */
+  --ink: #0f3a2c; /* deep bottle green — text, borders, filled buttons */
+  --ink-2: #3d5a50; /* secondary copy */
+  --ink-3: #7b8d84; /* micro-labels, captions */
+  --rule: #d6cdb8; /* hairlines that recede into the paper */
+  --mark: #f79a3c; /* saffron — the marker. Never a button. */
+  --mark-wash: #fcbc72; /* the marker seen through paper, for long highlights */
+  --mark-soft: #fde1bd; /* the same marker, watered down for a note */
+  --mark-deep: #cf6a1c; /* pen-pressed orange, for a loop round a word */
+  --board: #123a2c; /* the blackboard band */
+  --chalk: #f2f0e4;
+  --pista: #dbe8c6; /* sweet-shop green */
+  --sky: #d5e3ef; /* carbon-copy blue — one cool note, for balance */
+  --rose: #f6d6d0;
+  --clay: #f3d7bd;
+  --rust: #b4491d; /* one hot accent, used in single dots */
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: clip; /* the marginalia hangs off the edges on purpose */
+}
+
+/* Everything except the doodle field sits above it. */
+.lp > *:not(.field) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── the floating classroom ───────────────────────────────────────────────── */
+
+/*
+ * A page-height layer of very faint school objects at three or four sizes. It
+ * exists for depth: the page should feel like something resting on a desk with
+ * things scattered under it, not a flat sheet. Kept under 10% opacity so it can
+ * never compete with a word of copy, and inert to the pointer.
+ */
+.lp .field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lp .field > span {
+  position: absolute;
+  color: var(--ink);
+  animation: drift var(--dur, 14s) ease-in-out var(--delay, 0s) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg));
+  }
+  to {
+    transform: translate3d(4px, -14px, 0) rotate(calc(var(--rot, 0deg) + 6deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp .field > span {
+    animation: none;
+  }
+}
+
+/* ── type ─────────────────────────────────────────────────────────────────── */
+
+.lp .display,
+.lp h1,
+.lp h2 {
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.04;
+  color: var(--ink);
+}
+
+.lp h3,
+.lp h4 {
+  font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.lp .mono {
+  font-family: var(--font-roboto-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+
+.lp .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* A saffron marker stroke laid *behind* the word, a degree off true. */
+.lp .hl {
+  position: relative;
+  white-space: nowrap;
+  /*
+   * isolate, not just relative: a negative-z pseudo-element would otherwise
+   * paint behind .lp's own paper background and vanish. Isolating makes .hl the
+   * stacking context, so the marker sits behind the glyphs and nothing else.
+   */
+  isolation: isolate;
+}
+
+.lp .hl::before {
+  content: "";
+  position: absolute;
+  inset: 0.12em -0.18em 0.1em -0.18em;
+  /* the wash, not the full saffron: a highlighter is ink on top of paper, and at
+     headline width the undiluted colour stops being an accent and becomes a bar */
+  background: var(--mark-wash);
+  transform: rotate(-0.9deg);
+  border-radius: 3px 6px 4px 7px; /* a marker does not have square ends */
+  z-index: -1;
+}
+
+/* Same job, drawn as a loop round the word instead. Used once. */
+.lp .circ {
+  position: relative;
+  white-space: nowrap;
+  padding: 0 0.12em;
+}
+
+.lp .circ svg {
+  position: absolute;
+  inset: -22% -10%;
+  width: 120%;
+  height: 144%;
+  color: var(--mark-deep);
+  pointer-events: none;
+}
+
+/* ── buttons ──────────────────────────────────────────────────────────────── */
+
+.lp .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 7px;
+  padding: 15px 26px;
+  font-size: 16px;
+  font-weight: 500;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: rgba(15, 58, 44, 0.06) 0 1px 2px 0;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.lp .btn:hover {
+  background: #0a2a20;
+  transform: translateY(-1px);
+}
+
+.lp .btn-sm {
+  padding: 9px 16px;
+  font-size: 14px;
+}
+
+.lp .btn-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: background 120ms ease;
+}
+
+.lp .btn-line:hover {
+  background: var(--paper-2);
+}
+
+/* A secondary route that would look over-committed in bottle green. */
+.lp .btn-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mark-soft);
+  border-radius: 7px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.lp .btn-soft:hover {
+  filter: brightness(0.97);
+}
+
+/* ── the nav ──────────────────────────────────────────────────────────────── */
+
+/*
+ * The glow is two very wide, very faint saffron shadows: light bleeding off the
+ * paper rather than elevation. Kept under 6% opacity — any stronger and the blur
+ * radii band into visible concentric rings against the paper.
+ */
+.lp .nav {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  box-shadow:
+    rgba(247, 154, 60, 0.055) 0 28px 60px 0,
+    rgba(247, 154, 60, 0.035) 0 120px 140px 0;
+}
+
+/* ── surfaces ─────────────────────────────────────────────────────────────── */
+
+.lp .card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+}
+
+/* A note torn out and stuck down: the colour separates it, so no shadow. */
+.lp .note {
+  position: relative;
+  border-radius: 14px;
+  padding: 26px;
+  color: var(--ink);
+  border: 1px solid rgba(15, 58, 44, 0.1);
+}
+
+/* Two strips of tape, because a note is stuck to something. */
+.lp .note.taped::before,
+.lp .note.taped::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 62px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-left: 1px dashed rgba(15, 58, 44, 0.12);
+  border-right: 1px dashed rgba(15, 58, 44, 0.12);
+}
+
+.lp .note.taped::before {
+  left: 22px;
+  transform: rotate(-4deg);
+}
+
+.lp .note.taped::after {
+  right: 22px;
+  transform: rotate(3deg);
+}
+
+/* An eyebrow written on a torn tag rather than set in a pill. */
+.lp .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mark);
+  border: 1px solid rgba(15, 58, 44, 0.18);
+  border-radius: 4px 9px 5px 8px;
+  padding: 5px 11px 5px 6px;
+  color: var(--ink);
+  transform: rotate(-0.8deg);
+}
+
+.lp .tag-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--mark);
+}
+
+/* The blackboard: the one dark band on the page. */
+.lp .board {
+  background: var(--board);
+  background-image:
+    radial-gradient(120% 90% at 20% 0%, rgba(242, 240, 228, 0.07), transparent 60%),
+    repeating-linear-gradient(to bottom, rgba(242, 240, 228, 0.05) 0 1px, transparent 1px 46px);
+  border-radius: 18px;
+  color: var(--chalk);
+  box-shadow: inset 0 0 0 6px rgba(242, 240, 228, 0.05);
+}
+
+.lp .board h2,
+.lp .board h3,
+.lp .board .display {
+  color: var(--chalk);
+}
+
+/* ── FAQ ──────────────────────────────────────────────────────────────────── */
+
+.lp details {
+  border-bottom: 1px solid rgba(15, 58, 44, 0.22);
+}
+
+.lp summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 4px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lp summary::-webkit-details-marker {
+  display: none;
+}
+
+.lp summary::after {
+  content: "+";
+  font-family: var(--font-roboto-mono), ui-monospace, monospace;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.lp details[open] summary::after {
+  content: "\2013"; /* an en dash — a closed drawer, not a minus sign */
+}
+
+.lp details[open] summary {
+  padding-bottom: 8px;
+}
+
+/* ── accessibility ────────────────────────────────────────────────────────── */
+
+.lp a:focus-visible,
+.lp button:focus-visible,
+.lp summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.lp ::selection {
+  background: var(--mark);
+  color: var(--ink);
+}

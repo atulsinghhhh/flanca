@@ -1,0 +1,300 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Flanca design system — "ledger & slate"
+   The school office register, rebuilt as software: warm paper ground, ink text,
+   institutional green, tabular numerals everywhere money or marks appear.
+   Deliberately NOT a white/blue SaaS dashboard — every competitor is one.
+   ========================================================================== */
+
+@theme {
+  /* ── ground & ink */
+  --color-paper: #faf8f4; /* warm register paper */
+  --color-paper-2: #f4f1ea; /* sunken panels, table stripes */
+  --color-card: #ffffff;
+  --color-ink: #16191d; /* near-black with a blue cast */
+  --color-ink-2: #3f464e; /* secondary text */
+  --color-ink-3: #6b7480; /* muted / labels */
+  --color-line: #e2ddd2; /* hairlines on paper */
+  --color-line-2: #cfc7b8; /* stronger rules */
+
+  /* ── brand: deep bottle green, the same ink landing.css sets its filled
+     buttons in — not a separate SaaS teal. */
+  --color-brand: #0f3a2c;
+  --color-brand-dark: #0a2a20;
+  --color-brand-light: #e6f2ed;
+  --color-brand-ink: #0b3b30;
+
+  /* ── accents */
+  --color-marigold: #e0952a; /* attention, pending, warnings */
+  --color-marigold-light: #fdf3e2;
+  --color-marigold-ink: #8a5a10; /* AA-safe amber text/icon on marigold-light */
+  --color-marigold-ink-strong: #6d4409; /* deeper amber for body copy on tinted backgrounds */
+  --color-amber-deep: #a2540f; /* mid-severity aging/warning tier, between marigold and rust */
+  --color-rust: #b4491d; /* high-severity aging tier, shared with the landing palette */
+  --color-overdue: #b3261e; /* money that is late */
+  --color-overdue-light: #fdeceb;
+  --color-overdue-ink: #7d1c16; /* AA-safe overdue text on overdue-light */
+  --color-info: #1d5fa8;
+  --color-info-light: #e8f0f9;
+  --color-good: #1f7a44;
+  --color-good-light: #e8f4ec;
+
+  /* ── type */
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-instrument-sans), sans-serif;
+
+  /* ── radii: slightly squared. A register is not a bubble. */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+
+  /* ── elevation: paper, not glass */
+  --shadow-card: 0 1px 2px rgba(22, 25, 29, 0.05), 0 1px 1px rgba(22, 25, 29, 0.04);
+  --shadow-pop: 0 8px 24px -6px rgba(22, 25, 29, 0.18), 0 2px 6px rgba(22, 25, 29, 0.06);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Money and marks must line up in columns. Non-negotiable in a school. */
+  .tnum,
+  table td,
+  table th,
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+  }
+
+  h1, h2 {
+    font-weight: 700;
+    letter-spacing: -0.012em;
+  }
+
+  h3, h4 {
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  /* Focus that a 55-year-old principal can see, without being ugly. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* Big enough to hit with a thumb in a corridor. */
+  button, [role="button"], a.btn {
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: var(--color-brand-light);
+    color: var(--color-brand-ink);
+  }
+}
+
+@layer utilities {
+  /*
+   * Editorial section label — used above every panel.
+   *
+   * Colour is deliberately NOT set here: baking it in means the class silently
+   * overrides a text-* utility on a dark ground, which is how a label ends up
+   * near-invisible on the brand green.
+   */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Ruled data table, like a register page */
+  .ruled tbody tr {
+    border-top: 1px solid var(--color-line);
+  }
+  .ruled tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--color-paper-2) 55%, transparent);
+  }
+  .ruled th {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1.5px solid var(--color-line-2);
+    white-space: nowrap;
+  }
+  .ruled td {
+    padding: 9px 12px;
+  }
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ============================================================================
+   Responsive record tables — every `.ruled` table is a list of records (a
+   student, a fee, a staff member per row), never a grid where position itself
+   carries meaning. Below `sm` there is no room for columns, so each row
+   becomes a card: `data-label` on a `<td>` stands in for the column header
+   that no longer exists, and the one cell that identifies the row (a name)
+   opts out of the label via `data-title` to read as the card's heading
+   instead. CSS-only, matching the rest of the shell's breakpoint handling —
+   no JS, no layout hook.
+
+   Matrices where row AND column position both matter (the timetable, the
+   monthly attendance register) do NOT use `.ruled` and are not affected —
+   collapsing those into cards would destroy the thing they show. Those keep
+   their horizontal scroll with a pinned first column instead (below).
+   ========================================================================== */
+@media screen and (max-width: 639px) {
+  .ruled {
+    min-width: 0 !important;
+    display: block;
+  }
+  .ruled thead {
+    display: none;
+  }
+  .ruled tbody,
+  .ruled tbody tr,
+  .ruled tbody td {
+    display: block;
+    width: 100%;
+  }
+  .ruled tbody tr {
+    margin-bottom: 8px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-card);
+  }
+  .ruled tbody tr:last-child {
+    margin-bottom: 0;
+  }
+  .ruled tbody tr:nth-child(even) {
+    background: var(--color-card);
+  }
+  /*
+   * Label above value, not label-beside-value: a cell's content is arbitrary
+   * JSX (a Badge, a Link, several stacked <p> lines, an icon and text) and is
+   * left in its own normal flow below the label line rather than forced into
+   * a flex row with it — flexing the td itself would turn a cell with several
+   * child elements into several side-by-side flex items, scattering a
+   * multi-line note across the card instead of stacking it.
+   */
+  .ruled tbody td {
+    display: block;
+    padding: 6px 12px;
+    text-align: left;
+    white-space: normal;
+  }
+  .ruled tbody td.num {
+    text-align: left;
+  }
+  .ruled tbody td[data-title] {
+    padding-top: 10px;
+    padding-bottom: 6px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .ruled tbody td:not([data-title])::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 1px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .ruled tbody td[data-label=""]::before {
+    content: none;
+  }
+}
+
+/* ============================================================================
+   PRINT — receipts, report cards and certificates are physical objects in an
+   Indian school. They must come out of a cheap inkjet correctly, every time.
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12px;
+  }
+
+  .no-print,
+  nav,
+  aside,
+  header.app-header {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #999 !important;
+    break-inside: avoid;
+  }
+
+  .page-break {
+    break-after: page;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

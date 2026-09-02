@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flanca — the school system, and the tutor, that share one roster</title>
+<meta name="description" content="Admissions to report cards, with APAAR and DPDP built in — and an AI tutor that marks a child's own working line by line. Both read one roster. Built for Indian private schools of 500–1,500 students.">
+<meta name="theme-color" content="#f4efe2">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230f3a2c'/><path d='M9 22V10h9M9 16h7' stroke='%23f79a3c' stroke-width='2.6' fill='none' stroke-linecap='square'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&family=Karla:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────
+   Flanca Suite — the front door.
+
+   The palette is not invented here. It is borrowed, exactly, from the two
+   products this page sells: the school system's chalky register paper and deep
+   bottle green, and the tutor's dark notebook brown and ember orange. One paper
+   world, two colours. This page uses both and owns neither, which is the whole
+   proposition stated in ink.
+
+   The body text is bottle green rather than black on purpose. A school ledger is
+   written in green-black ink, and the page should read like the object it is
+   selling rather than like software.
+
+   THE SIGNATURE IS THE SEAM, AND IT MOVES.
+   The previous version of this page explained the product in seven sections of
+   prose and a static graphic. A school owner landing cold had to read three
+   paragraphs before knowing what was being sold. So the hero now performs the
+   product instead of describing it: one child's roster row lights up on the
+   register, a hairline draws across the seam, and her working is marked on the
+   other side — four seconds, no sentences. Every other section is deliberately
+   quiet so that this one lands. Chanel's rule: one accessory comes off.
+   ───────────────────────────────────────────────────────────────────────── */
+:root{
+  /* the register */
+  --register:#f4efe2;
+  --register-sunk:#ece5d4;
+  --leaf:#fdfbf5;
+  --ink:#0f3a2c;
+  --ink-2:#3d5a50;
+  --ink-3:#7b8d84;
+  --rule:#cfc5ae;
+  --rule-soft:#ded6c3;
+  /* the marker. Highlight only — never a button. */
+  --marigold:#f79a3c;
+  --marigold-soft:#fde1bd;
+  /* the notebook */
+  --notebook:#2b2018;
+  --notebook-2:#3a2c20;
+  --ember:#f0632a;
+  --ember-soft:#f8b294;
+  --chalk:#f5ead9;
+
+  --measure:58ch;
+  --edge:clamp(1.1rem,4vw,2.75rem);
+  --gap:clamp(3rem,7vw,6rem);
+
+  --t-xs:.75rem;
+  --t-sm:.875rem;
+  --t-base:clamp(1rem,.97rem + .15vw,1.075rem);
+  --t-lg:clamp(1.15rem,1.08rem + .3vw,1.35rem);
+  --t-xl:clamp(1.5rem,1.35rem + .7vw,2.05rem);
+  --t-2xl:clamp(2rem,1.6rem + 1.9vw,3.2rem);
+  --t-3xl:clamp(2.2rem,1.55rem + 2.6vw,3.7rem);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--register);color:var(--ink);
+  font-family:Karla,ui-sans-serif,system-ui,sans-serif;
+  font-size:var(--t-base);line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:Mukta,Karla,ui-sans-serif,sans-serif;font-weight:800;
+  line-height:1.04;letter-spacing:-.025em;margin:0;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+img{display:block;max-width:100%;height:auto}
+.wrap{max-width:74rem;margin-inline:auto;padding-inline:var(--edge)}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:var(--t-xs);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── nav ─────────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--register) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--rule-soft)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding-block:.85rem}
+.brand{display:flex;align-items:center;gap:.55rem;font-family:Mukta,sans-serif;
+  font-weight:800;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none}
+.brand i{width:1.6rem;height:1.6rem;border-radius:5px;background:var(--ink);
+  display:grid;place-items:center;color:var(--marigold);font-style:normal;font-size:.95rem}
+.nav nav{display:flex;align-items:center;gap:clamp(.7rem,2.5vw,1.6rem);font-size:var(--t-sm)}
+.nav nav a{text-decoration:none;color:var(--ink-2);white-space:nowrap}
+.nav nav a:hover{color:var(--ink)}
+.nav nav a.cta{color:var(--ink);border-bottom:2px solid var(--marigold);padding-bottom:1px}
+@media (max-width:34rem){.nav nav a.hide-s{display:none}}
+
+/* ── hero ────────────────────────────────────────────────────────────── */
+/* The seam has to be ON SCREEN at first paint. Unplayed, the dark side is
+   empty, and an empty panel below the fold reads as a broken page rather
+   than as a sequence waiting its turn. Every measurement above it is set to
+   get it into view on a laptop. */
+.hero{padding-block:clamp(1.3rem,3.4vw,2.2rem) 0}
+.hero h1{font-size:var(--t-3xl);max-width:20ch;margin-top:.85rem}
+.hero h1 em{font-style:normal;color:var(--ember)}
+.hero .lede{margin-top:1rem;font-size:var(--t-lg);color:var(--ink-2);max-width:66ch}
+.hero .lede b{color:var(--ink);font-weight:600}
+.acts{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.2rem}
+.btn{font:inherit;font-weight:600;font-size:var(--t-sm);text-decoration:none;
+  padding:.72rem 1.15rem;border-radius:3px;border:1px solid var(--ink);
+  background:var(--ink);color:var(--register);cursor:pointer;transition:.15s}
+.btn:hover{background:#0a2a20}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--ink);background:var(--leaf)}
+.btn:focus-visible,a:focus-visible,button:focus-visible{outline:2px solid var(--marigold);outline-offset:2px}
+
+/* ── THE SEAM · the signature ────────────────────────────────────────── */
+.seam{margin-top:clamp(1.4rem,3.2vw,2.1rem);position:relative}
+.seam-card{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);
+  border-radius:4px;overflow:hidden;box-shadow:0 1px 0 var(--rule-soft),0 18px 40px -32px rgba(15,58,44,.45)}
+@media (max-width:44rem){.seam-card{grid-template-columns:1fr}}
+.side{padding:clamp(.9rem,2.2vw,1.35rem)}
+.side--register{background:var(--leaf)}
+.side--notebook{background:var(--notebook);color:var(--chalk);position:relative}
+.side-head{display:flex;justify-content:space-between;gap:.6rem;align-items:baseline;
+  padding-bottom:.5rem;border-bottom:1px solid var(--rule-soft)}
+.side--notebook .side-head{border-bottom-color:#4a3a2c}
+.side-head .mono{font-size:.68rem}
+.side--notebook .side-head .mono{color:var(--ember-soft)}
+
+.roster{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+.roster th{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500;text-align:left;padding:.5rem .35rem}
+.roster th:last-child,.roster td:last-child{text-align:right}
+.roster td{padding:.5rem .35rem;border-top:1px solid var(--rule-soft)}
+.roster .name{font-weight:500}
+.roster tr.subject{position:relative;background:var(--marigold-soft);transition:background .45s ease}
+.seam.arm tr.subject{background:transparent}
+.roster tr.subject td:first-child{position:relative}
+
+/* the working, on the dark side */
+.working{font-family:"IBM Plex Mono",monospace;font-size:var(--t-sm);
+  display:grid;gap:.38rem;margin-top:.6rem}
+/* Visible by DEFAULT, hidden only once JS has armed the sequence.
+   The obvious way round — hide in CSS, reveal by animation — means the panel is
+   empty for anyone the animation never reaches: a background tab (Chrome freezes
+   animation there), a dead script, an old browser. The content is the point; the
+   animation is a bonus, so the bonus is what gets conditionally applied. */
+.working span{opacity:1}
+.seam.arm .working span{opacity:0;transform:translateY(4px)}
+.working .bad{color:var(--ember)}
+.verdict{margin-top:.85rem;padding-top:.7rem;border-top:1px solid #4a3a2c;
+  font-size:var(--t-sm);color:#d8c6b2}
+.seam.arm .verdict{opacity:0}
+.verdict b{color:var(--chalk);font-weight:600}
+
+/* the hairline that crosses the seam */
+.thread{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--marigold);
+  transform-origin:top;opacity:.9}
+.seam.arm .thread{transform:scaleY(0)}
+@media (max-width:44rem){.thread{display:none}}
+.tag{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(.8);
+  background:var(--marigold);color:#3a2400;font-family:"IBM Plex Mono",monospace;
+  font-size:.66rem;font-weight:600;padding:.2rem .45rem;border-radius:2px;
+  white-space:nowrap;z-index:2}
+.seam.arm .tag{opacity:0}
+@media (max-width:44rem){.tag{display:none}}
+
+.seam-note{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+  margin-top:.7rem;font-size:var(--t-sm);color:var(--ink-3)}
+.replay{font:inherit;font-size:var(--t-xs);font-family:"IBM Plex Mono",monospace;
+  letter-spacing:.12em;text-transform:uppercase;background:none;border:none;
+  color:var(--ink-3);cursor:pointer;padding:.2rem .1rem;border-bottom:1px solid var(--rule)}
+.replay:hover{color:var(--ink);border-bottom-color:var(--ink)}
+
+/* the orchestrated sequence — one cue per beat */
+.seam.arm.play tr.subject{background:var(--marigold-soft)}
+.seam.arm.play .thread{animation:draw .7s .55s cubic-bezier(.4,0,.2,1) forwards}
+.seam.arm.play .tag{animation:pop .35s .45s ease forwards}
+.seam.arm.play .working span{animation:line .35s ease forwards}
+.seam.arm.play .working span:nth-child(1){animation-delay:1.15s}
+.seam.arm.play .working span:nth-child(2){animation-delay:1.4s}
+.seam.arm.play .working span:nth-child(3){animation-delay:1.65s}
+.seam.arm.play .working span:nth-child(4){animation-delay:1.9s}
+.seam.arm.play .verdict{animation:line .45s 2.5s ease forwards}
+@keyframes draw{to{transform:scaleY(1)}}
+@keyframes pop{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes line{to{opacity:1;transform:translateY(0)}}
+
+/* ── section furniture ───────────────────────────────────────────────── */
+section{padding-block:var(--gap)}
+.band{background:var(--register-sunk);border-block:1px solid var(--rule-soft)}
+.band--dark{background:var(--notebook);border-block-color:#4a3a2c;color:var(--chalk)}
+.band--dark .mono{color:var(--ember-soft)}
+.head h2{font-size:var(--t-2xl);max-width:19ch}
+.head p{margin-top:.8rem;color:var(--ink-2);max-width:var(--measure);font-size:var(--t-lg)}
+.band--dark .head p{color:#cdbba7}
+.head .mono{display:block;margin-bottom:.5rem}
+
+/* reveal on scroll — quiet, one property, no stagger fireworks */
+.rise{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rise.in{opacity:1;transform:none}
+
+/* ── the two products ────────────────────────────────────────────────── */
+.pair{display:grid;gap:1.1rem;margin-top:2rem}
+@media (min-width:52rem){.pair{grid-template-columns:1fr 1fr}}
+.prod{border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--leaf);
+  display:flex;flex-direction:column}
+.prod--tutor{background:var(--notebook);color:var(--chalk);border-color:#4a3a2c}
+.prod figure{margin:0;border-bottom:1px solid var(--rule-soft);background:var(--register-sunk)}
+.prod--tutor figure{border-bottom-color:#4a3a2c;background:#241a13}
+.prod figure img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:left top}
+.prod .body{padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;gap:.55rem;flex:1}
+.prod h3{font-size:var(--t-xl);max-width:18ch}
+.prod p{font-size:var(--t-sm);color:var(--ink-2)}
+.prod--tutor p{color:#cdbba7}
+.prod .go{margin-top:auto;padding-top:.6rem;font-size:var(--t-sm);font-weight:600;
+  text-decoration:none;border-bottom:2px solid var(--marigold);align-self:flex-start}
+.prod--tutor .go{border-bottom-color:var(--ember)}
+.dot{width:.45rem;height:.45rem;border-radius:50%;background:var(--ink);display:inline-block;
+  margin-right:.4rem;vertical-align:middle}
+.prod--tutor .dot{background:var(--ember)}
+
+/* ── see it working · the screenshot tabs ────────────────────────────── */
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.tabs button{font:inherit;font-size:var(--t-sm);font-weight:500;padding:.5rem .85rem;
+  background:transparent;border:1px solid var(--rule);border-radius:3px;color:var(--ink-2);
+  cursor:pointer;transition:.15s}
+.tabs button:hover{border-color:var(--ink);color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--register)}
+.shot{margin-top:1.1rem;border:1px solid var(--rule);border-radius:4px;overflow:hidden;
+  background:var(--leaf);box-shadow:0 18px 40px -34px rgba(15,58,44,.5)}
+.shot img{width:100%}
+.shot figcaption{padding:.85rem 1.1rem;border-top:1px solid var(--rule-soft);
+  font-size:var(--t-sm);color:var(--ink-2)}
+.shot figcaption b{color:var(--ink);font-weight:600}
+.panel[hidden]{display:none}
+
+/* ── the independence switch ─────────────────────────────────────────── */
+.switch{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:1.6rem}
+.switch button{font:inherit;font-size:var(--t-sm);font-weight:500;padding:.5rem .9rem;
+  border:1px solid #4a3a2c;background:transparent;color:#cdbba7;border-radius:3px;cursor:pointer}
+.switch button[aria-pressed="true"]{background:var(--chalk);color:var(--notebook);border-color:var(--chalk)}
+.offpair{display:grid;gap:1rem;margin-top:1.3rem}
+@media (min-width:52rem){.offpair{grid-template-columns:1fr 1fr}}
+.off{border:1px solid #4a3a2c;border-radius:4px;padding:1rem 1.15rem;background:#241a13;
+  transition:opacity .35s ease,filter .35s ease}
+.off h3{font-size:var(--t-lg);color:var(--chalk)}
+.off p{margin-top:.45rem;font-size:var(--t-sm);color:#cdbba7}
+.off .meas{margin-top:.7rem;font-family:"IBM Plex Mono",monospace;font-size:.75rem;
+  color:var(--ember-soft);border-left:2px solid var(--ember);padding-left:.6rem}
+.off.dimmed{opacity:.32;filter:saturate(.4)}
+.off.dimmed .meas{color:#8a7a6a;border-left-color:#5a4a3a}
+
+/* ── the two dates ───────────────────────────────────────────────────── */
+.dates{display:grid;gap:1rem;margin-top:1.8rem}
+@media (min-width:52rem){.dates{grid-template-columns:1fr 1fr}}
+.date{background:var(--leaf);border:1px solid var(--rule);border-left:3px solid var(--marigold);
+  border-radius:0 4px 4px 0;padding:1.1rem 1.25rem}
+.date time{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.1em;
+  text-transform:uppercase;color:#a9761f;font-weight:600}
+.date h3{font-size:var(--t-lg);margin-top:.3rem}
+.date p{margin-top:.45rem;font-size:var(--t-sm);color:var(--ink-2)}
+.count{margin-top:.8rem;font-family:Mukta,sans-serif;font-weight:800;font-size:1.6rem;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.count small{font-family:Karla,sans-serif;font-weight:400;font-size:var(--t-sm);color:var(--ink-3);
+  letter-spacing:0;margin-left:.4rem}
+
+/* ── six things ──────────────────────────────────────────────────────── */
+.nots{margin:1.8rem 0 0;padding:0;list-style:none;border-top:1px solid #4a3a2c}
+.nots li{display:grid;grid-template-columns:1.3rem 1fr;gap:.7rem;align-items:baseline;
+  padding-block:.8rem;border-bottom:1px solid #4a3a2c;font-size:var(--t-sm);color:#cdbba7}
+.nots li::before{content:"×";color:var(--ember);font-weight:700}
+.nots b{color:var(--chalk);font-weight:600}
+
+/* ── closing ─────────────────────────────────────────────────────────── */
+.close{text-align:left}
+.close h2{font-size:var(--t-2xl);max-width:20ch}
+.steps{margin:1.6rem 0 0;padding:0;list-style:none;max-width:46rem}
+.steps li{display:grid;grid-template-columns:1.9rem 1fr;gap:.8rem;align-items:baseline;
+  padding-block:.75rem;border-top:1px solid var(--rule-soft);font-size:var(--t-sm)}
+.steps li:first-child{border-top:none}
+.steps li i{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.7rem;
+  color:var(--marigold);font-weight:600}
+footer{border-top:1px solid var(--rule-soft);padding-block:1.8rem;font-size:var(--t-sm);color:var(--ink-3)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.8rem}
+footer a{color:var(--ink-2)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;
+    transition-duration:.001ms!important}
+  .rise{opacity:1;transform:none}
+  /* Nothing to restore: the final state is the default, so motion off simply
+     never arms the sequence. */
+  .replay{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/"><i>F</i>Flanca</a>
+    <nav>
+      <a href="https://manage.flanca.online" class="hide-s">School system</a>
+      <a href="https://tutor.flanca.online" class="hide-s">Tutor</a>
+      <a href="#see">See it working</a>
+      <a href="#start" class="cta">Send your list</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ── hero ─────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap">
+    <span class="mono">For Indian private schools · 500–1,500 students</span>
+    <h1>Everything your office does. Plus a tutor for <em>every child</em>.</h1>
+    <p class="lede">
+      Admissions to report cards, with APAAR and DPDP built in — and an AI tutor that marks a child's
+      own working line by line. <b>Both read one roster</b>, so a child is entered once.
+    </p>
+    <div class="acts">
+      <a class="btn" href="#start">Send us your student list →</a>
+      <a class="btn ghost" href="#see">See it working</a>
+    </div>
+
+    <!-- THE SEAM. The product, performed. -->
+    <div class="seam" id="seam">
+      <div class="seam-card">
+        <div class="side side--register">
+          <div class="side-head"><span class="mono">The school's register</span><span class="mono">Class 7 A</span></div>
+          <table class="roster">
+            <thead><tr><th>Adm. no</th><th>Name</th><th>Fees</th><th>Att.</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">NPS/1312</td><td class="name">Aarohi Bhatia</td><td>Clear</td><td class="num">96%</td></tr>
+              <tr class="subject"><td class="mono">NPS/1314</td><td class="name">Kabir Bhatia</td><td>Due</td><td class="num">94%</td></tr>
+              <tr><td class="mono">NPS/1317</td><td class="name">Rachana Yadav</td><td>Clear</td><td class="num">91%</td></tr>
+              <tr><td class="mono">NPS/1320</td><td class="name">Zoya Khan</td><td>Due</td><td class="num">98%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side side--notebook">
+          <div class="side-head"><span class="mono">Kabir's working, marked</span><span class="mono">Simple equations</span></div>
+          <div class="working">
+            <span>5x + 12 = 47</span>
+            <span>5x = 47 − 12</span>
+            <span>5x = 35</span>
+            <span class="bad">x = 8 &nbsp;← first wrong step</span>
+          </div>
+          <p class="verdict"><b>Dividing 35 by 5 gives 7, not 8.</b> Everything above this line is right — the slip is one division, and it is the third time this month.</p>
+        </div>
+      </div>
+      <span class="thread" aria-hidden="true"></span>
+      <span class="tag" aria-hidden="true">NPS/1314</span>
+      <div class="seam-note">
+        <span>The same child, in both. Her class teacher sees the mistake beside her marks; her father sees it beside the fee.</span>
+        <button class="replay" type="button" id="replay">Replay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── the two products ─────────────────────────────────────────────── -->
+<section class="band">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">Two finished products, bought separately</span>
+      <h2>One runs the school. One teaches the child.</h2>
+    </div>
+    <div class="pair">
+      <article class="prod rise">
+        <figure><img src="shots/01-office-overview.jpg" alt="The Flanca office dashboard showing fees collected and overdue, attendance still to mark, and APAAR coverage." loading="lazy" width="1459" height="812"></figure>
+        <div class="body">
+          <h3><span class="dot"></span>The school system</h3>
+          <p>Admissions, fees, receipts with gap-free serials, attendance in one tap that works with no signal, exams, report cards in your format, certificates, timetable, library, transport.</p>
+          <p><b>APAAR coverage, DPDP consent and UDISE+ exports included</b> — not an add-on.</p>
+          <a class="go" href="https://manage.flanca.online">See the school system →</a>
+        </div>
+      </article>
+      <article class="prod prod--tutor rise">
+        <figure><img src="shots/15-marking-steps.jpg" alt="The tutor marking a child's five-step solution, with step four identified as the first error." loading="lazy" width="1459" height="812"></figure>
+        <div class="body">
+          <h3><span class="dot"></span>The tutor</h3>
+          <p>Teaches a chapter lesson by lesson. Solves a question typed or photographed. Marks a child's own working and names the first wrong step — then drills the mistake she keeps repeating.</p>
+          <p><b>CBSE and ICSE, Class 3 to 12.</b> It reaches a parent through you, never around you.</p>
+          <a class="go" href="https://tutor.flanca.online">See the tutor →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── see it working ───────────────────────────────────────────────── -->
+<section id="see">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">Real screens · not mockups</span>
+      <h2>Four things nobody else will show you before a demo.</h2>
+    </div>
+
+    <div class="tabs rise" role="tablist" aria-label="Product screens">
+      <button role="tab" aria-selected="true"  aria-controls="p1" id="t1">The office, on a Tuesday</button>
+      <button role="tab" aria-selected="false" aria-controls="p2" id="t2">Your file, checked</button>
+      <button role="tab" aria-selected="false" aria-controls="p3" id="t3">September</button>
+      <button role="tab" aria-selected="false" aria-controls="p4" id="t4">A child's working, marked</button>
+    </div>
+
+    <figure class="shot panel rise" role="tabpanel" id="p1" aria-labelledby="t1">
+      <img src="shots/01-office-overview.jpg" alt="The office dashboard: money collected and overdue, attendance still to mark, APAAR coverage, fee ageing and admissions." width="1459" height="812">
+      <figcaption><b>Every number is a decision waiting.</b> ₹38 lakh overdue, aged so the oldest debt is the first call. 23 sections still to mark. 145 children whose missing APAAR ID blocks certification.</figcaption>
+    </figure>
+
+    <figure class="shot panel rise" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+      <img src="shots/05-import-rows-flagged.jpg" alt="The import preview listing rows that need attention, each with a plain-English explanation." width="1459" height="812">
+      <figcaption><b>Not “6 errors” — six sentences.</b> “APAAR ID &quot;1234&quot; is not 12 digits — it will not pass UDISE+.” Nothing is saved until you approve it, and one click undoes the whole import.</figcaption>
+    </figure>
+
+    <figure class="shot panel rise" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+      <img src="shots/08-apaar-udise.jpg" alt="The APAAR and UDISE+ worklist with the next action for each child and the parent's phone number." width="1459" height="812">
+      <figcaption><b>A worklist, not a report.</b> Each row says what to do next and gives the parent's number to do it with. One button writes the Aadhaar spelling in.</figcaption>
+    </figure>
+
+    <figure class="shot panel rise" role="tabpanel" id="p4" aria-labelledby="t4" hidden>
+      <img src="shots/15-marking-steps.jpg" alt="The tutor marking a Class 4 child's working, steps one to three correct and step four flagged." width="1459" height="812">
+      <figcaption><b>Steps 1–3 correct, and told so.</b> Step 4 — “72 minus 19 does not equal 43” — with the right way shown. Every step carries a <b>Disagree?</b> so a teacher can overrule it.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ── independence ─────────────────────────────────────────────────── -->
+<section class="band band--dark">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">The thing that usually isn't true</span>
+      <h2>Either one works with the other switched off.</h2>
+      <p>Two products that share a roster normally means one is a hostage. Switch one off and see.</p>
+    </div>
+    <div class="switch rise" role="group" aria-label="Switch a product off">
+      <button type="button" id="offTutor"  aria-pressed="false">Turn the tutor off</button>
+      <button type="button" id="offSchool" aria-pressed="false">Turn the school system off</button>
+    </div>
+    <div class="offpair">
+      <div class="off rise" id="cardSchool">
+        <h3>The school system</h3>
+        <p>Every screen still renders. The tutor panel says it is unavailable, honestly, and nothing else on the page changes. A school that never buys the tutor sees no gap where it would have been.</p>
+        <p class="meas">Measured with the tutor unreachable: pages render in 220–379&nbsp;ms.</p>
+      </div>
+      <div class="off rise" id="cardTutor">
+        <h3>The tutor</h3>
+        <p>A child still learns. The tutor never calls the school for anything — her class, board and syllabus are already on her own account, written there when the school set her up.</p>
+        <p class="meas">Measured with the school system stopped: the child's subjects, class and plan all resolve.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── the two dates ────────────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">Two deadlines that are not ours</span>
+      <h2>September decides this for you, not us.</h2>
+    </div>
+    <div class="dates">
+      <article class="date rise">
+        <time datetime="2026-09-30">30 September 2026</time>
+        <h3>UDISE+ certification freezes</h3>
+        <p>A child without an APAAR ID blocks your school's entire data certification. Progression, new admissions and the school profile all lock.</p>
+        <p class="count" id="c1">—</p>
+      </article>
+      <article class="date rise">
+        <time datetime="2026-11-13">13 November 2026</time>
+        <h3>DPDP consent framework</h3>
+        <p>Verifiable parental consent before processing a child's data. Your school is the data fiduciary. The consent register is in the product, per purpose.</p>
+        <p class="count" id="c2">—</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── six things ───────────────────────────────────────────────────── -->
+<section class="band band--dark">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">Before you ask us in a meeting</span>
+      <h2>Six things we don't do.</h2>
+      <p>You will find these out anyway. Finding them out from us is cheaper for both of us.</p>
+    </div>
+    <ul class="nots rise">
+      <li><span><b>No GPS bus tracking, no biometric attendance.</b> Both need hardware you would be buying. We import a biometric device's data instead.</span></li>
+      <li><span><b>English only.</b> The strings are ready for Hindi and it is not done. If your teachers need Hindi, this is not ready for them yet.</span></li>
+      <li><span><b>No generated lesson videos.</b> We built them, watched them, and removed them. A child gets better video free on YouTube.</span></li>
+      <li><span><b>No online exams or question banks.</b> Marks entry and report cards, yes. Conducting an exam on a screen, no.</span></li>
+      <li><span><b>No reference schools.</b> There are none, because there is no first school yet. If that is disqualifying, it should be.</span></li>
+      <li><span><b>No implementation team.</b> Switching on is an afternoon and a spreadsheet, or it is not working. There is nobody to send.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── closing ──────────────────────────────────────────────────────── -->
+<section id="start" class="close">
+  <div class="wrap">
+    <div class="head rise">
+      <span class="mono">How this starts</span>
+      <h2>Send us your student list. We'll show you your own school.</h2>
+    </div>
+    <ol class="steps rise">
+      <li><i>01</i><span>You email whatever you already keep — Excel, CSV, an export from your current software. <b>Do not retype anything.</b></span></li>
+      <li><i>02</i><span>We import it and show you every row before anything is saved: what we understood, and what we were unsure about.</span></li>
+      <li><i>03</i><span>Then we undo the whole thing in front of you, and you watch it return to exactly how it was.</span></li>
+      <li><i>04</i><span>Only then do we talk about the rest of it.</span></li>
+    </ol>
+    <div class="acts rise">
+      <a class="btn" href="mailto:hello@flanca.online?subject=Our%20student%20list">Email us the list →</a>
+      <a class="btn ghost" href="https://manage.flanca.online">Look around the school system</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Flanca — built for Indian schools.</span>
+    <span><a href="https://manage.flanca.online">School system</a> · <a href="https://tutor.flanca.online">Tutor</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ── the seam sequence ────────────────────────────────────────────
+     Played once when it first comes into view, and on demand from the
+     replay control. Restarting means dropping the class, forcing a
+     reflow, and adding it back — otherwise the animations never
+     re-trigger because nothing about them changed. */
+  var seam = document.getElementById("seam");
+
+  var played = false;
+
+  /* Chrome does not advance CSS animations in a hidden or fully occluded tab.
+     Arming the sequence there would hide the working and then never reveal it —
+     the panel just stays empty until the tab is read, which is the one failure
+     this sequence must not have. So visibility is a precondition, not an
+     afterthought: hidden means show the finished state and wait. */
+  function visible() { return document.visibilityState !== "hidden"; }
+
+  function play() {
+    if (reduce) return;
+    if (!visible()) { seam.classList.remove("arm"); return; }
+    played = true;
+    seam.classList.remove("play");
+    void seam.offsetWidth;
+    seam.classList.add("arm", "play");
+  }
+
+  function inView() {
+    var r = seam.getBoundingClientRect();
+    return r.top < innerHeight * 0.88 && r.bottom > 0;
+  }
+
+  if (!reduce && "IntersectionObserver" in window) {
+    if (visible()) seam.classList.add("arm");
+    var once = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { play(); once.disconnect(); } });
+    }, { threshold: .12 });
+    once.observe(seam);
+
+    /* Two safety nets, because an unplayed sequence is an empty panel.
+       One: if it has not started shortly after load, stop hiding the content.
+       Two: if the reader arrives from a background tab, run it when they look. */
+    setTimeout(function () {
+      if (!played) seam.classList.remove("arm");
+    }, 2500);
+
+    document.addEventListener("visibilitychange", function () {
+      if (!played && visible() && inView()) play();
+    });
+  }
+
+  document.getElementById("replay").addEventListener("click", play);
+
+  /* ── scroll reveal ───────────────────────────────────────────────── */
+  var rises = [].slice.call(document.querySelectorAll(".rise"));
+  if (reduce || !("IntersectionObserver" in window)) {
+    rises.forEach(function (n) { n.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: .12, rootMargin: "0px 0px -8% 0px" });
+    rises.forEach(function (n) { io.observe(n); });
+  }
+
+  /* ── screenshot tabs ─────────────────────────────────────────────── */
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { select(t); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var next = tabs[(i + d + tabs.length) % tabs.length];
+      next.focus(); select(next);
+    });
+  });
+
+  /* ── the independence switch ─────────────────────────────────────────
+     Dimming the card of the product you switched OFF, so what stays lit
+     is the answer: the other one is still there. */
+  var pairs = [
+    { btn: document.getElementById("offTutor"),  dim: document.getElementById("cardTutor") },
+    { btn: document.getElementById("offSchool"), dim: document.getElementById("cardSchool") }
+  ];
+  pairs.forEach(function (p) {
+    p.btn.addEventListener("click", function () {
+      var on = p.btn.getAttribute("aria-pressed") !== "true";
+      pairs.forEach(function (q) {
+        q.btn.setAttribute("aria-pressed", String(q === p && on));
+        q.dim.classList.toggle("dimmed", q === p && on);
+      });
+    });
+  });
+
+  /* ── the countdowns ──────────────────────────────────────────────────
+     A deadline is more persuasive as a number of days than as a date,
+     and it keeps being true without anyone editing this file. */
+  function countdown(id, iso, label) {
+    var el = document.getElementById(id);
+    var days = Math.ceil((new Date(iso + "T00:00:00+05:30") - new Date()) / 86400000);
+    el.innerHTML = days > 0
+      ? days + ' <small>days left</small>'
+      : '<small>' + label + '</small>';
+  }
+  countdown("c1", "2026-09-30", "That date has passed.");
+  countdown("c2", "2026-11-13", "Now in force.");
+})();
+</script>
+</body>
+</html>
