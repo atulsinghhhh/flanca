@@ -2,6 +2,11 @@
 
 A new Flutter project.
 
+## Download
+
+Latest Android build (public, no login required):
+https://github.com/atulsinghhhh/flanca-releases/releases/latest
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
