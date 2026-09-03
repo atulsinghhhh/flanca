@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import 'academic_year_overview_screen.dart';
 
 final _schoolProfileProvider = FutureProvider.autoDispose((ref) async {
   final api = ref.watch(apiClientProvider);
@@ -575,6 +576,18 @@ class _YearsSection extends ConsumerWidget {
                   border: isCurrent
                       ? const Border(left: BorderSide(color: AppColors.brand, width: 3))
                       : null,
+                  // The whole session, laid out end to end — exam terms, PTM
+                  // days, calendar entries — rather than the create/rename/
+                  // current-toggle actions, which stay web-only by design
+                  // (see the "mobile is for looking things up" note above).
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => AcademicYearOverviewScreen(
+                        yearId: y['id'] as String,
+                        yearName: y['name'] as String,
+                      ),
+                    ),
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -599,6 +612,8 @@ class _YearsSection extends ConsumerWidget {
                         ),
                       ),
                       if (isCurrent) const ToneBadge('Current', tone: Tone.good),
+                      const SizedBox(width: AppSpacing.sm),
+                      const Icon(Icons.chevron_right, size: 18, color: AppColors.ink3),
                     ],
                   ),
                 ),

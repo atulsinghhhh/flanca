@@ -28,9 +28,13 @@ const _monthAbbr = [
 
 /// Holidays, exams and everything else read very differently in a list of
 /// upcoming days, so each kind gets its own tone rather than one grey block.
-Tone _toneForEventKind(String kind) => switch (kind.toUpperCase()) {
+/// Shared with academic_year_overview_screen.dart, which folds exam terms
+/// and PTM days — neither a CalendarEvent kind — into this same palette.
+Tone toneForEventKind(String kind) => switch (kind.toUpperCase()) {
   'HOLIDAY' => Tone.good,
   'EXAM' => Tone.bad,
+  'EXAM_TERM' => Tone.bad,
+  'PTM' => Tone.warn,
   'EVENT' => Tone.brand,
   'ACTIVITY' => Tone.info,
   'MEETING' => Tone.warn,
@@ -38,7 +42,7 @@ Tone _toneForEventKind(String kind) => switch (kind.toUpperCase()) {
 };
 
 /// "PARENT_TEACHER_MEETING" → "Parent teacher meeting".
-String _kindLabel(String kind) {
+String kindLabel(String kind) {
   final words = kind.toLowerCase().replaceAll('_', ' ');
   return words.isEmpty ? words : words[0].toUpperCase() + words.substring(1);
 }
@@ -103,7 +107,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     child: AppFilterBar(
                       labels: [
                         for (final v in tabValues)
-                          v == '_ALL' ? 'All' : _kindLabel(v),
+                          v == '_ALL' ? 'All' : kindLabel(v),
                       ],
                       selectedIndex: tabValues.indexOf(_kindFilter),
                       onSelected: (index) =>
@@ -133,7 +137,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                             final end = e['endDate'] as String?;
                             final parsed = DateTime.parse(start);
                             final kind = e['kind'] as String? ?? '';
-                            final tone = _toneForEventKind(kind);
+                            final tone = toneForEventKind(kind);
 
                             return AppFadeIn(
                               delay: AppFadeIn.stagger(index),
@@ -182,7 +186,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                   subtitle: end != null ? 'Until ${formatDay(end)}' : null,
                                   trailing: kind.isNotEmpty
                                       ? ToneBadge(
-                                          _kindLabel(kind),
+                                          kindLabel(kind),
                                           tone: tone,
                                           dot: false,
                                         )
