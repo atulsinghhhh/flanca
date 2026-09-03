@@ -111,7 +111,7 @@ class _NoticesScreenState extends ConsumerState<NoticesScreen> {
                     final audience = c['audience'] as String?;
                     final matchesAudience = switch (_audience) {
                       '_ALL' => true,
-                      '_EVERYONE' => audience == null,
+                      '_EVERYONE' => audience == 'ALL',
                       _ => audience == _audience,
                     };
                     if (!matchesAudience) return false;

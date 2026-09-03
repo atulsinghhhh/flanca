@@ -5,6 +5,7 @@ import '../../core/auth/auth_state.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import 'attendance_status_screen.dart' show attendanceStatusProvider;
 
 final _sectionSheetProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
   (ref, sectionId) async {
@@ -56,6 +57,10 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
       final api = ref.read(apiClientProvider);
       await api.post('/attendance/sections/${widget.sectionId}', data: {'date': _isoDate, 'marks': marks});
       ref.invalidate(_sectionSheetProvider(widget.sectionId));
+      // Otherwise the section list this screen was pushed from keeps
+      // showing whatever marked/present/absent counts it had on entry,
+      // until the user manually pulls to refresh.
+      ref.invalidate(attendanceStatusProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance saved')));
       }
@@ -73,6 +78,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
       await api.post('/attendance/sections/${widget.sectionId}/mark-all-present', data: {'date': _isoDate});
       _pendingStatus.clear();
       ref.invalidate(_sectionSheetProvider(widget.sectionId));
+      ref.invalidate(attendanceStatusProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked all present')));
       }

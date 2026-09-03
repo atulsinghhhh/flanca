@@ -6,6 +6,18 @@ const nextConfig: NextConfig = {
   // (.next/standalone) instead of the full node_modules tree.
   output: "standalone",
 
+  experimental: {
+    // Next's client Router Cache keeps a dynamic page's RSC payload for 30s
+    // by default, so a `revalidatePath` server action (e.g. marking
+    // attendance) correctly busts the *server* cache but a page the user
+    // already visited or prefetched this session — the section list, the
+    // teacher home — can still serve that stale 30-second-old copy instead
+    // of refetching. Every screen here reflects state another person changes
+    // a moment ago (attendance, fee dues, notices), so a 30s "eventually
+    // consistent" window reads as a bug, not a feature. Zero it out.
+    staleTimes: { dynamic: 0 },
+  },
+
   async rewrites() {
     return [
       /*

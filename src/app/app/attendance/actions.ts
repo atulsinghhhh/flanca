@@ -196,6 +196,7 @@ export async function saveAttendance(input: {
   }
 
   revalidatePath("/app/attendance");
+  revalidatePath(`/app/attendance/${input.sectionId}`);
   revalidatePath("/app");
 
   return { ok: true, saved: accepted.length, absent, rejected };

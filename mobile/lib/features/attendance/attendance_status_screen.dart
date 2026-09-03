@@ -122,7 +122,19 @@ class _SectionRow extends StatelessWidget {
     final label = row['label'] as String;
     final empty = strength == 0;
     final progress = empty ? 0.0 : (marked / strength).clamp(0.0, 1.0);
-    final tone = isComplete ? Tone.good : Tone.warn;
+    // "Complete" only means everyone has a status recorded, not that everyone
+    // is present — a fully-marked register with a third of the section
+    // absent should not look identical to a fully-present one, so this
+    // follows the same percentBp thresholds src/app/app/attendance/page.tsx
+    // uses for its Meter, rather than turning solid green on completion alone.
+    final percentBp = row['percentBp'] as int? ?? 0;
+    final tone = !isComplete
+        ? Tone.warn
+        : percentBp >= 9000
+            ? Tone.good
+            : percentBp >= 7500
+                ? Tone.warn
+                : Tone.bad;
 
     return AppSurface(
       padding: const EdgeInsets.all(AppSpacing.lg),

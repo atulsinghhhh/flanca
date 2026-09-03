@@ -167,7 +167,16 @@ export default async function AttendancePage({
                     <div
                       className={`flex size-9 shrink-0 items-center justify-center rounded-lg border-2 ${
                         r.isComplete
-                          ? "border-good/30 bg-good-light text-good"
+                          ? // "Complete" only means everyone has a status recorded, not that
+                            // everyone is present — a fully-marked register with a third of
+                            // the section absent should not look identical to a fully-present
+                            // one, so this follows the same percentBp thresholds as the Meter
+                            // below rather than turning solid green on completion alone.
+                            r.percentBp >= 9000
+                            ? "border-good/30 bg-good-light text-good"
+                            : r.percentBp >= 7500
+                              ? "border-marigold/40 bg-marigold-light text-marigold-ink"
+                              : "border-overdue/25 bg-overdue-light text-overdue"
                           : r.marked > 0
                             ? "border-marigold/40 bg-marigold-light text-marigold-ink"
                             : "border-line-2 bg-paper-2 text-ink-3"

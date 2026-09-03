@@ -203,10 +203,15 @@ export async function bookSlot(input: { slotId: string; studentId: string }) {
   });
   if (!guard.allowed) return { error: guard.reason! };
 
-  await db.pTMSlot.update({
-    where: { id: slot.id },
+  // Conditioned on bookedAt still being null: two parents can both pass the
+  // guard above off the same stale read, so only this update — not the check
+  // — is what actually decides who gets the slot. An unconditional update
+  // here would let the second writer silently overwrite the first's booking.
+  const { count } = await db.pTMSlot.updateMany({
+    where: { id: slot.id, bookedAt: null },
     data: { studentId: link.student.id, bookedByUserId: actor.id, bookedAt: new Date() },
   });
+  if (count === 0) return { error: "That slot was just booked by someone else." };
 
   const dateIso = slot.date.toISOString().slice(0, 10);
   const when = `${minutesToClock(slot.startMinute)}–${minutesToClock(slot.endMinute)}`;
