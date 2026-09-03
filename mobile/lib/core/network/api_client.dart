@@ -4,12 +4,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'api_exception.dart';
 import 'token_store.dart';
 
-/// Base URL of the Next.js mobile API (src/app/api/mobile/v1). Override per
-/// environment with `--dart-define=API_BASE_URL=...`; on a physical device or
-/// emulator `localhost` means the device itself, not your dev machine.
+/// Base URL of the Next.js mobile API (src/app/api/mobile/v1). Defaults to
+/// the deployed Azure Container App so release builds work on any device
+/// out of the box. Override per environment with
+/// `--dart-define=API_BASE_URL=...`, e.g. for local dev against a server
+/// running on your machine (on a physical device or emulator `localhost`
+/// means the device itself, not your dev machine — use your LAN IP or
+/// 10.0.2.2 for the Android emulator instead).
 const _apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://localhost:3500/api/mobile/v1',
+  defaultValue:
+      'https://flanca-app.proudstone-deb2fdad.centralindia.azurecontainerapps.io/api/mobile/v1',
 );
 
 typedef VoidCallback = void Function();
