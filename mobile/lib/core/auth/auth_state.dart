@@ -5,6 +5,7 @@ import '../network/api_client.dart';
 import '../network/api_exception.dart';
 import '../network/token_store.dart';
 import '../../models/actor.dart';
+import 'session_reset.dart';
 
 enum AuthStatus { unknown, signedOut, mustChangePassword, signedIn }
 
@@ -74,6 +75,9 @@ class AuthController extends Notifier<AuthState> {
       status: actor.mustChangePassword ? AuthStatus.mustChangePassword : AuthStatus.signedIn,
       actor: actor,
     );
+    // A previous account's Home/Timetable/Fees/etc. data must not survive
+    // into this one — see session_reset.dart.
+    sessionGeneration.value++;
   }
 
   Future<void> setPassword({required String current, required String next, required String confirm}) async {
