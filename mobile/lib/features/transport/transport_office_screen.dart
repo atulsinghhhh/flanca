@@ -13,7 +13,7 @@ import '../../core/widgets/app_widgets.dart';
 /// every active route, its stops, and who is riding, with the actions that
 /// keep that true — add/edit/delete a route, add/delete a stop, board/unboard
 /// a student.
-final transportOfficeRoutesProvider = FutureProvider.autoDispose((ref) async {
+final transportOfficeRoutesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/transport/routes');
   return (data['routes'] as List).cast<Map<String, dynamic>>();

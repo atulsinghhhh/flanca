@@ -15,7 +15,7 @@ import 'student_logins_screen.dart';
 /// fetched once here rather than duplicated per screen. Reuses
 /// src/app/api/mobile/v1/settings/classes, the same endpoint the web
 /// settings page already built; there is no separate students/classes route.
-final classOptionsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+final classOptionsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/settings/classes');
   return (data['classes'] as List).cast<Map<String, dynamic>>();
@@ -63,7 +63,7 @@ class StudentsQuery {
   int get hashCode => Object.hash(q, classId, status, page);
 }
 
-final studentsListProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, StudentsQuery>(
+final studentsListProvider = FutureProvider.family<Map<String, dynamic>, StudentsQuery>(
   (ref, query) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/students', query: query.toQuery());

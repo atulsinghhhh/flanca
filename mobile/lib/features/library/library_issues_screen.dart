@@ -7,7 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final libraryIssuesProvider = FutureProvider.autoDispose((ref) async {
+final libraryIssuesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/library/issues');
   return (data['issues'] as List).cast<Map<String, dynamic>>();

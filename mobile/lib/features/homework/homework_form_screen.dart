@@ -7,7 +7,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'homework_list_screen.dart';
 import '../../core/theme/app_theme.dart';
 
-final _homeworkSectionsProvider = FutureProvider.autoDispose((ref) async {
+final _homeworkSectionsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/homework/sections');
   return (data['sections'] as List).cast<Map<String, dynamic>>();

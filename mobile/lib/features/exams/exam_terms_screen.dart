@@ -6,7 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'exam_term_detail_screen.dart';
 
-final examTermsProvider = FutureProvider.autoDispose((ref) async {
+final examTermsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/exams/terms');
 });

@@ -7,7 +7,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'class_timetable_screen.dart';
 import 'master_timetable_screen.dart';
 
-final _schoolClassesProvider = FutureProvider.autoDispose((ref) async {
+final _schoolClassesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/settings/classes');
   return (data['classes'] as List).cast<Map<String, dynamic>>();

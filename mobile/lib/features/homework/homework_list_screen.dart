@@ -14,7 +14,7 @@ Tone _toneForHomeworkStatus(String status) => switch (status) {
       _ => Tone.neutral,
     };
 
-final homeworkListProvider = FutureProvider.autoDispose((ref) async {
+final homeworkListProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/homework');
 });

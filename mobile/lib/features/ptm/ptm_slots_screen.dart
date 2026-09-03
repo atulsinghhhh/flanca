@@ -6,7 +6,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _ptmSlotsProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _ptmSlotsProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, sectionId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/ptm/sections/$sectionId/slots');

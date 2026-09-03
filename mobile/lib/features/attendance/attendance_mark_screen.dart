@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'attendance_status_screen.dart' show attendanceStatusProvider;
 
-final _sectionSheetProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _sectionSheetProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, sectionId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/attendance/sections/$sectionId');

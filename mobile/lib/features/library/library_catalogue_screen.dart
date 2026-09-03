@@ -10,7 +10,7 @@ import '../../core/widgets/app_widgets.dart';
 
 final _libraryQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
-final libraryBooksProvider = FutureProvider.autoDispose((ref) async {
+final libraryBooksProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final q = ref.watch(_libraryQueryProvider);
   final data = await api.get<Map<String, dynamic>>(

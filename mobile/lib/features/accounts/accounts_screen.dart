@@ -7,7 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _dayBookProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, isoDate) async {
+final _dayBookProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, isoDate) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/accounts/day-book', query: {'date': isoDate});
 });

@@ -9,7 +9,7 @@ import 'certificate_detail_screen.dart';
 import 'certificate_issue_screen.dart';
 import 'certificate_vocab.dart';
 
-final _certificatesProvider = FutureProvider.autoDispose
+final _certificatesProvider = FutureProvider
     .family<Map<String, dynamic>, String?>((ref, type) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>(

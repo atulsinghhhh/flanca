@@ -5,8 +5,9 @@ import '../../core/auth/auth_state.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
+import '../home/home_screen.dart' show unreadNotificationsProvider;
 
-final notificationsProvider = FutureProvider.autoDispose((ref) async {
+final notificationsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/notifications');
 });
@@ -33,6 +34,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       // Best-effort.
     }
     ref.invalidate(notificationsProvider);
+    ref.invalidate(unreadNotificationsProvider);
   }
 
   Future<void> _markRead(String id) async {
@@ -43,6 +45,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       // Best-effort.
     }
     ref.invalidate(notificationsProvider);
+    ref.invalidate(unreadNotificationsProvider);
   }
 
   @override
@@ -224,9 +227,12 @@ class _NotificationRow extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(top: 3),
                               child: Text(
+                                // No maxLines/ellipsis cap: the web list
+                                // (notification-list.tsx) never truncates
+                                // the body either, and a "..." with no way
+                                // to expand meant some notifications could
+                                // never be read in full on mobile.
                                 body,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: AppColors.ink3,
                                   fontSize: 13,

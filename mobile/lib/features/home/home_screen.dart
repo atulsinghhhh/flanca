@@ -22,14 +22,14 @@ import '../admissions/admissions_screen.dart';
 import '../notices/notices_screen.dart';
 import 'home_search.dart';
 
-final homeDataProvider = FutureProvider.autoDispose((ref) async {
+final homeDataProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/home');
 });
 
 /// Same cheap count the web header's bell polls on every page load
 /// (src/app/app/layout.tsx) — one indexed `count()`, not the notification list.
-final unreadNotificationsProvider = FutureProvider.autoDispose((ref) async {
+final unreadNotificationsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>(
     '/notifications/unread-count',
@@ -441,7 +441,10 @@ class _OfficeSnapshot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final money = home['money'] as Map<String, dynamic>? ?? const {};
+    // Only PRINCIPAL/OWNER/ACCOUNTANT get a `money` block from /home — ADMIN
+    // (office/clerk) doesn't, and that absence means "not allowed to see
+    // this", not "zero collected". Show the card only when it's there.
+    final money = home['money'] as Map<String, dynamic>?;
     final admissions = home['admissions'] as Map<String, dynamic>? ?? const {};
     final compliance = home['compliance'] as Map<String, dynamic>? ?? const {};
     final library = home['library'] as Map<String, dynamic>? ?? const {};
@@ -453,7 +456,7 @@ class _OfficeSnapshot extends StatelessWidget {
     final timetableToday = home['timetableToday'] as Map<String, dynamic>?;
     final staffPresentToday = home['staffPresentToday'] as int?;
     final staffCount = home['staffCount'] as int?;
-    final outstanding = money['outstanding'] as int? ?? 0;
+    final outstanding = money?['outstanding'] as int? ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,21 +508,22 @@ class _OfficeSnapshot extends StatelessWidget {
         // Two stats per band, not four — fee amounts run to seven-plus digits
         // and a single four-column row wraps them into an unreadable mess on
         // a phone-width screen.
-        AppSummaryCard(
-          margin: const EdgeInsets.only(bottom: AppSpacing.md),
-          stats: [
-            AppStat(
-              label: 'Collected',
-              value: formatMoney(money['collected'] as int? ?? 0),
-              tone: Tone.good,
-            ),
-            AppStat(
-              label: 'Outstanding',
-              value: formatMoney(outstanding),
-              tone: outstanding > 0 ? Tone.bad : null,
-            ),
-          ],
-        ),
+        if (money != null)
+          AppSummaryCard(
+            margin: const EdgeInsets.only(bottom: AppSpacing.md),
+            stats: [
+              AppStat(
+                label: 'Collected',
+                value: formatMoney(money['collected'] as int? ?? 0),
+                tone: Tone.good,
+              ),
+              AppStat(
+                label: 'Outstanding',
+                value: formatMoney(outstanding),
+                tone: outstanding > 0 ? Tone.bad : null,
+              ),
+            ],
+          ),
         AppSummaryCard(
           margin: EdgeInsets.zero,
           stats: [

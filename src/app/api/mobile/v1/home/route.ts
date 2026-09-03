@@ -25,5 +25,11 @@ export const GET = withMobileRoute(async (req: Request) => {
     select: { id: true, name: true, slug: true },
   });
   const overview = await getOverview(actor.schoolId);
-  return apiOk({ role: "OFFICE", school, home: overview });
+  // ADMIN (office/clerk) gets everything except money — that's PRINCIPAL/
+  // OWNER/ACCOUNTANT territory. Strip it here rather than trust the client
+  // to hide a card, since the client already has the numbers once sent.
+  const canSeeFinance = hasRole(actor, "OWNER", "PRINCIPAL", "ACCOUNTANT");
+  const { money: _money, ...overviewWithoutMoney } = overview;
+  const home = canSeeFinance ? overview : overviewWithoutMoney;
+  return apiOk({ role: "OFFICE", school, home });
 });

@@ -6,7 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'apaar_student_screen.dart';
 
-final _apaarCentreProvider = FutureProvider.autoDispose
+final _apaarCentreProvider = FutureProvider
     .family<Map<String, dynamic>, String?>((ref, state) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>(

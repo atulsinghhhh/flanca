@@ -41,6 +41,10 @@ export default async function OverviewPage() {
 
   const school = await currentSchool(actor.schoolId);
   const o = await getOverview(actor.schoolId, TODAY);
+  // ADMIN (office/clerk) gets the same dashboard as PRINCIPAL/OWNER minus
+  // money — that's PRINCIPAL/OWNER/ACCOUNTANT territory, same split as the
+  // mobile /home route (src/app/api/mobile/v1/home/route.ts).
+  const canSeeFinance = hasRole(actor, "OWNER", "PRINCIPAL", "ACCOUNTANT");
 
   const freezeSoon = o.compliance.daysToFreeze <= 60 && o.compliance.apaar.blocking > 0;
 
@@ -84,22 +88,26 @@ export default async function OverviewPage() {
       ) : null}
 
       {/* ── top row: the numbers that matter before 10am ── */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Stat
-          label="Collected this year"
-          value={formatMoney(o.money.collected)}
-          sub={`of ${formatMoney(o.money.billed)} billed · ${formatPercent(o.money.collectedBp, 1)}`}
-          icon={<Coins className="size-4" />}
-          href="/app/fees"
-        />
-        <Stat
-          label="Overdue"
-          value={formatMoney(o.money.overdue)}
-          tone={o.money.overdue > 0 ? "bad" : "good"}
-          sub={o.money.defaulters > 0 ? `${o.money.defaulters} students past due date` : "Nothing past due"}
-          icon={<AlertTriangle className="size-4" />}
-          href="/app/fees?filter=overdue"
-        />
+      <div className={`grid grid-cols-2 gap-3 ${canSeeFinance ? "xl:grid-cols-4" : ""}`}>
+        {canSeeFinance ? (
+          <>
+            <Stat
+              label="Collected this year"
+              value={formatMoney(o.money.collected)}
+              sub={`of ${formatMoney(o.money.billed)} billed · ${formatPercent(o.money.collectedBp, 1)}`}
+              icon={<Coins className="size-4" />}
+              href="/app/fees"
+            />
+            <Stat
+              label="Overdue"
+              value={formatMoney(o.money.overdue)}
+              tone={o.money.overdue > 0 ? "bad" : "good"}
+              sub={o.money.defaulters > 0 ? `${o.money.defaulters} students past due date` : "Nothing past due"}
+              icon={<AlertTriangle className="size-4" />}
+              href="/app/fees?filter=overdue"
+            />
+          </>
+        ) : null}
         <Stat
           label="Present today"
           value={o.attendance.marked > 0 ? formatPercent(o.attendance.percentBp, 1) : "Not marked"}
@@ -128,44 +136,46 @@ export default async function OverviewPage() {
 
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-3">
         {/* ── money detail ── */}
-        <Card className="lg:col-span-2">
-          <CardHead
-            title="Fee collection"
-            hint="Every rupee shown here is itemised head-wise on the parent's invoice — no hidden convenience fee."
-            action={
-              <Link href="/app/fees" className="text-[13px] font-semibold text-brand hover:underline">
-                Dues report
-              </Link>
-            }
-          />
-          <div className="grid gap-5 px-5 py-4 sm:grid-cols-2">
-            <div>
-              <p className="eyebrow text-ink-3">Collection, last 14 days</p>
-              <div className="mt-2">
-                <CollectionSpark data={o.money.trend} />
-              </div>
-              <div className="mt-4">
-                <div className="flex items-baseline justify-between">
-                  <p className="eyebrow text-ink-3">Of billed</p>
-                  <p className="tnum text-[13px] font-semibold">{formatPercent(o.money.collectedBp, 1)}</p>
+        {canSeeFinance ? (
+          <Card className="lg:col-span-2">
+            <CardHead
+              title="Fee collection"
+              hint="Every rupee shown here is itemised head-wise on the parent's invoice — no hidden convenience fee."
+              action={
+                <Link href="/app/fees" className="text-[13px] font-semibold text-brand hover:underline">
+                  Dues report
+                </Link>
+              }
+            />
+            <div className="grid gap-5 px-5 py-4 sm:grid-cols-2">
+              <div>
+                <p className="eyebrow text-ink-3">Collection, last 14 days</p>
+                <div className="mt-2">
+                  <CollectionSpark data={o.money.trend} />
                 </div>
-                <Meter valueBp={o.money.collectedBp} tone="good" className="mt-1.5" />
+                <div className="mt-4">
+                  <div className="flex items-baseline justify-between">
+                    <p className="eyebrow text-ink-3">Of billed</p>
+                    <p className="tnum text-[13px] font-semibold">{formatPercent(o.money.collectedBp, 1)}</p>
+                  </div>
+                  <Meter valueBp={o.money.collectedBp} tone="good" className="mt-1.5" />
+                </div>
+              </div>
+              <div>
+                <p className="eyebrow text-ink-3">Outstanding by age</p>
+                <p className="mt-1 font-display text-[22px] font-semibold tnum">
+                  {formatMoney(o.money.outstanding)}
+                </p>
+                <div className="mt-3">
+                  <AgeingBar buckets={o.money.buckets} />
+                </div>
               </div>
             </div>
-            <div>
-              <p className="eyebrow text-ink-3">Outstanding by age</p>
-              <p className="mt-1 font-display text-[22px] font-semibold tnum">
-                {formatMoney(o.money.outstanding)}
-              </p>
-              <div className="mt-3">
-                <AgeingBar buckets={o.money.buckets} />
-              </div>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        ) : null}
 
         {/* ── school timetable, right now ── */}
-        <Card>
+        <Card className={canSeeFinance ? undefined : "lg:col-span-3"}>
           <CardHead
             title="School Timetable — Today"
             hint={o.timetableToday.currentPeriod ? "In session" : "No period running"}

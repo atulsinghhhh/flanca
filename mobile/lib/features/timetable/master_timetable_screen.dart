@@ -5,7 +5,7 @@ import '../../core/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _schoolTimetableProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, int>(
+final _schoolTimetableProvider = FutureProvider.family<Map<String, dynamic>, int>(
   (ref, dayOfWeek) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/timetable/school', query: {'dayOfWeek': '$dayOfWeek'});

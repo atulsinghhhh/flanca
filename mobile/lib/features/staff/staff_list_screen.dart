@@ -13,7 +13,7 @@ import 'staff_detail_screen.dart';
 /// The department list is fetched unfiltered so the filter pills stay stable
 /// as the visible directory narrows — deriving them from the filtered
 /// response would make the pills you didn't pick disappear.
-final _staffDepartmentsProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+final _staffDepartmentsProvider = FutureProvider<List<String>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/staff');
   final summary = data['summary'] as Map<String, dynamic>?;
@@ -40,7 +40,7 @@ class StaffQuery {
   int get hashCode => Object.hash(q, dept);
 }
 
-final staffListProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, StaffQuery>((ref, query) async {
+final staffListProvider = FutureProvider.family<Map<String, dynamic>, StaffQuery>((ref, query) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/staff', query: query.toQuery());
 });

@@ -6,7 +6,7 @@ import '../../core/widgets/app_widgets.dart';
 import '../home/home_screen.dart';
 import 'ptm_slots_screen.dart';
 
-final _schoolSectionsForPtmProvider = FutureProvider.autoDispose((ref) async {
+final _schoolSectionsForPtmProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/settings/classes');
   return (data['classes'] as List).cast<Map<String, dynamic>>();

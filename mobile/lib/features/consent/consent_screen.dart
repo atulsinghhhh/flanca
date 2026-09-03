@@ -7,7 +7,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'consent_record_screen.dart';
 import 'consent_vocab.dart';
 
-final _consentProvider = FutureProvider.autoDispose
+final _consentProvider = FutureProvider
     .family<Map<String, dynamic>, String?>((ref, purpose) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>(

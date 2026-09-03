@@ -9,7 +9,7 @@ import '../../core/widgets/app_widgets.dart';
 import '../../models/student.dart';
 import 'student_form_screen.dart';
 
-final _studentDetailProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _studentDetailProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, studentId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/students/$studentId');

@@ -8,7 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'chat_inbox_screen.dart';
 
-final _threadProvider = FutureProvider.autoDispose
+final _threadProvider = FutureProvider
     .family<Map<String, dynamic>, String>((ref, threadId) async {
       final api = ref.watch(apiClientProvider);
       try {
@@ -43,15 +43,31 @@ String _dateLabel(DateTime day) {
 /// since that's the mental model everyone already has for "chat". No feature
 /// beyond what the API supports: there is no per-message read receipt in the
 /// backend, so bubbles show a sent mark, never a WhatsApp-style read tick.
+///
+/// Doubles as the "new chat" screen: pass `contact` instead of `threadId` and
+/// this opens straight into the empty thread view, exactly like tapping a
+/// contact in WhatsApp. The thread itself isn't created until the first
+/// message is actually sent — `_send` calls POST /chat/threads instead of
+/// POST /chat/threads/:id/messages while `_threadId` is still null, then
+/// switches over once the backend hands back a real id.
 class ChatThreadScreen extends ConsumerStatefulWidget {
   const ChatThreadScreen({
     super.key,
-    required this.threadId,
+    this.threadId,
     required this.title,
-  });
+    this.contact,
+  }) : assert(
+         threadId != null || contact != null,
+         'Provide either an existing threadId or a contact to start with.',
+       );
 
-  final String threadId;
+  final String? threadId;
   final String title;
+
+  /// Only set when this screen was opened from the contact picker rather
+  /// than an existing thread. Needs `userId` and, optionally, `studentId`
+  /// and `role` (for the subtitle).
+  final Map<String, dynamic>? contact;
 
   @override
   ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
@@ -60,14 +76,20 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
 class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final _bodyController = TextEditingController();
   bool _sending = false;
+  String? _threadId;
 
   @override
   void initState() {
     super.initState();
+    _threadId = widget.threadId;
+    if (_threadId != null) _markRead(_threadId!);
+  }
+
+  void _markRead(String threadId) {
     Future.microtask(() async {
       try {
         final api = ref.read(apiClientProvider);
-        await api.post('/chat/threads/${widget.threadId}/read');
+        await api.post('/chat/threads/$threadId/read');
         ref.invalidate(chatInboxProvider);
       } on ApiException {
         // Best-effort — not marking read shouldn't block viewing the thread.
@@ -87,12 +109,28 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     setState(() => _sending = true);
     try {
       final api = ref.read(apiClientProvider);
-      await api.post(
-        '/chat/threads/${widget.threadId}/messages',
-        data: {'body': body},
-      );
-      _bodyController.clear();
-      ref.invalidate(_threadProvider(widget.threadId));
+      final threadId = _threadId;
+      if (threadId == null) {
+        final contact = widget.contact!;
+        final result = await api.post<Map<String, dynamic>>(
+          '/chat/threads',
+          data: {
+            'targetUserId': contact['userId'],
+            'studentId': contact['studentId'],
+            'body': body,
+          },
+        );
+        _bodyController.clear();
+        ref.invalidate(chatInboxProvider);
+        if (mounted) setState(() => _threadId = result['threadId'] as String);
+      } else {
+        await api.post(
+          '/chat/threads/$threadId/messages',
+          data: {'body': body},
+        );
+        _bodyController.clear();
+        ref.invalidate(_threadProvider(threadId));
+      }
     } on ApiException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -105,19 +143,24 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final thread = ref.watch(_threadProvider(widget.threadId));
-    final canPost = thread.maybeWhen(
-      data: (data) => data['canPost'] as bool? ?? true,
-      orElse: () => true,
-    );
-    final kind = thread.maybeWhen(
+    final threadId = _threadId;
+    final thread = threadId == null
+        ? null
+        : ref.watch(_threadProvider(threadId));
+    final canPost = thread?.maybeWhen(
+          data: (data) => data['canPost'] as bool? ?? true,
+          orElse: () => true,
+        ) ??
+        true;
+    final kind = thread?.maybeWhen(
       data: (data) => data['kind'] as String?,
       orElse: () => null,
     );
-    final theirRole = thread.maybeWhen(
-      data: (data) => data['theirRole'] as String?,
-      orElse: () => null,
-    );
+    final theirRole = thread?.maybeWhen(
+          data: (data) => data['theirRole'] as String?,
+          orElse: () => null,
+        ) ??
+        widget.contact?['role'] as String?;
 
     return Scaffold(
       appBar: AppTopBar(
@@ -134,12 +177,18 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           Expanded(
             child: Container(
               color: AppColors.paper2,
-              child: thread.when(
+              child: thread == null
+                  ? const EmptyState(
+                      icon: Icons.chat_bubble_outlined,
+                      title: 'No messages yet',
+                      message: 'Send the first message to start this conversation.',
+                    )
+                  : thread.when(
                 loading: () => const AppCardsSkeleton(),
                 error: (err, _) => ErrorView(
                   error: err,
                   onRetry: () =>
-                      ref.invalidate(_threadProvider(widget.threadId)),
+                      ref.invalidate(_threadProvider(threadId!)),
                 ),
                 data: (data) {
                   final messages = (data['messages'] as List)

@@ -6,7 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../profile/profile_screen.dart' show staffMeProvider;
 
-final _registerProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, ({String sectionId, String month})>(
+final _registerProvider = FutureProvider.family<Map<String, dynamic>, ({String sectionId, String month})>(
   (ref, args) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/attendance/register', query: {'sectionId': args.sectionId, 'month': args.month});
@@ -132,7 +132,7 @@ class _MarkCell extends StatelessWidget {
 /// Section-picker entry point: office chooses from the whole school (reuses
 /// /settings/classes), a class teacher only sees the section(s) they own
 /// (from /staff/me's classTeacherOf, already fetched for the Home dashboard).
-final classesProvider = FutureProvider.autoDispose((ref) async {
+final classesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/settings/classes');
   return (data['classes'] as List).cast<Map<String, dynamic>>();

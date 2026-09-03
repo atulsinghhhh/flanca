@@ -6,7 +6,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _sectionTimetableProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _sectionTimetableProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, sectionId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/timetable/sections/$sectionId');
@@ -17,7 +17,7 @@ final _sectionTimetableProvider = FutureProvider.autoDispose.family<Map<String, 
 /// period edit needs. Mirrors src/app/api/mobile/v1/settings/subjects/route.ts,
 /// whose "teachers" array is already keyed by Staff.id under "staffId" — the
 /// id `setPeriod` actually wants.
-final _classSubjectsProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _classSubjectsProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, classId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/settings/subjects', query: {'classId': classId});

@@ -9,7 +9,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final feesDuesProvider = FutureProvider.autoDispose
+final feesDuesProvider = FutureProvider
     .family<Map<String, dynamic>, String>((ref, q) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>(
@@ -18,7 +18,7 @@ final feesDuesProvider = FutureProvider.autoDispose
       );
     });
 
-final _studentFeePositionProvider = FutureProvider.autoDispose
+final _studentFeePositionProvider = FutureProvider
     .family<Map<String, dynamic>, String>((ref, studentId) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>('/fees/students/$studentId');

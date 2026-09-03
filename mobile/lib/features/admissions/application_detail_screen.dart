@@ -8,7 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'admissions_screen.dart' show applicationStatuses, applicationStatusLabel, applicationStatusTone;
 
-final _applicationDetailProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _applicationDetailProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, id) async {
     final api = ref.watch(apiClientProvider);
     final data = await api.get<Map<String, dynamic>>('/admissions/applications/$id');
@@ -18,7 +18,7 @@ final _applicationDetailProvider = FutureProvider.autoDispose.family<Map<String,
 
 /// `GET /settings/classes` already backs the web settings screen; reused here
 /// so the enrol step picks a real class instead of typing a raw id.
-final _classesProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+final _classesProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/settings/classes');
   return (data['classes'] as List).cast<Map<String, dynamic>>();

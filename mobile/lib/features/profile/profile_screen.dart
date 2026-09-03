@@ -8,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'change_password_screen.dart';
 import 'student_profile_screen.dart' show studentProfileProvider;
 
-final staffMeProvider = FutureProvider.autoDispose((ref) async {
+final staffMeProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/staff/me');
 });

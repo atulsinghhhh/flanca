@@ -8,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'chat_new_screen.dart';
 import 'chat_thread_screen.dart';
 
-final chatInboxProvider = FutureProvider.autoDispose((ref) async {
+final chatInboxProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/chat/threads');
   return (data['threads'] as List).cast<Map<String, dynamic>>();
@@ -19,7 +19,7 @@ final chatInboxProvider = FutureProvider.autoDispose((ref) async {
 /// also creates any channel that doesn't exist yet and syncs in anyone new to
 /// the roster, so opening Chat is enough to make a channel discoverable —
 /// nobody has to "create the class group" as a separate step.
-final channelsProvider = FutureProvider.autoDispose((ref) async {
+final channelsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/chat/groups');
   return (data['channels'] as List).cast<Map<String, dynamic>>();

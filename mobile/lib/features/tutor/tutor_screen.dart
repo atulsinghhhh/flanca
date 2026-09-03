@@ -8,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 import '../profile/student_profile_screen.dart';
 import '../../core/theme/app_theme.dart';
 
-final tutorStatusProvider = FutureProvider.autoDispose((ref) async {
+final tutorStatusProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/tutor/status');
 });

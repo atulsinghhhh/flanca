@@ -8,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 import 'exam_marks_entry_screen.dart';
 import 'exam_result_analysis_screen.dart';
 
-final _termDetailProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _termDetailProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, termName) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/exams/terms/${Uri.encodeComponent(termName)}');

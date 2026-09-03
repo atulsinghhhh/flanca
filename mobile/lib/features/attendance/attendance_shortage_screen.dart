@@ -8,7 +8,7 @@ import '../../core/widgets/app_widgets.dart';
 
 const _thresholds = [60, 70, 75, 80, 85];
 
-final _shortageProvider = FutureProvider.autoDispose
+final _shortageProvider = FutureProvider
     .family<Map<String, dynamic>, int>((ref, required) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>(

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_state.dart';
-import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
-import 'chat_inbox_screen.dart';
 import 'chat_thread_screen.dart';
 
-final chatContactsProvider = FutureProvider.autoDispose((ref) async {
+final chatContactsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/chat/contacts');
   return (data['contacts'] as List).cast<Map<String, dynamic>>();
@@ -183,121 +181,14 @@ class _ContactRow extends StatelessWidget {
       title: name,
       subtitle: contact['role'] as String? ?? '',
       showChevron: true,
-      onTap: () => showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => _ComposeSheet(contact: contact),
-      ),
-    );
-  }
-}
-
-class _ComposeSheet extends ConsumerStatefulWidget {
-  const _ComposeSheet({required this.contact});
-
-  final Map<String, dynamic> contact;
-
-  @override
-  ConsumerState<_ComposeSheet> createState() => _ComposeSheetState();
-}
-
-class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
-  final _bodyController = TextEditingController();
-  bool _sending = false;
-
-  @override
-  void dispose() {
-    _bodyController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _send() async {
-    final body = _bodyController.text.trim();
-    if (body.isEmpty) return;
-
-    final navigator = Navigator.of(context);
-    setState(() => _sending = true);
-    try {
-      final api = ref.read(apiClientProvider);
-      final result = await api.post<Map<String, dynamic>>(
-        '/chat/threads',
-        data: {
-          'targetUserId': widget.contact['userId'],
-          'studentId': widget.contact['studentId'],
-          'body': body,
-        },
-      );
-      ref.invalidate(chatInboxProvider);
-      if (!mounted) return;
-      navigator.pop(); // the compose sheet
-      navigator.pop(); // the contact picker, back to the inbox
-      navigator.push(
+      // Straight into the thread UI, empty and ready to type — same as
+      // tapping a contact in WhatsApp. No separate compose step: the thread
+      // itself is only created once the first message is actually sent, from
+      // inside ChatThreadScreen.
+      onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => ChatThreadScreen(
-            threadId: result['threadId'] as String,
-            title: widget.contact['name'] as String? ?? 'Conversation',
-          ),
+          builder: (_) => ChatThreadScreen(contact: contact, title: name),
         ),
-      );
-    } on ApiException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final contact = widget.contact;
-    final studentName = contact['studentName'] as String?;
-
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            contact['name'] as String? ?? '',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (studentName != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                'About $studentName',
-                style: const TextStyle(color: AppColors.ink3, fontSize: 12.5),
-              ),
-            ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _bodyController,
-            autofocus: true,
-            minLines: 2,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Write your first message…',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: AppSubmitButton(
-              label: 'Start conversation',
-              busy: _sending,
-              onPressed: _send,
-            ),
-          ),
-        ],
       ),
     );
   }

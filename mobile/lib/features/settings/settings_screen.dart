@@ -6,22 +6,22 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'academic_year_overview_screen.dart';
 
-final _schoolProfileProvider = FutureProvider.autoDispose((ref) async {
+final _schoolProfileProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/settings/school');
 });
 
-final _classesProvider = FutureProvider.autoDispose((ref) async {
+final _classesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/settings/classes');
 });
 
-final _subjectsProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String?>((ref, classId) async {
+final _subjectsProvider = FutureProvider.family<Map<String, dynamic>, String?>((ref, classId) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/settings/subjects', query: classId != null ? {'classId': classId} : null);
 });
 
-final _yearsProvider = FutureProvider.autoDispose((ref) async {
+final _yearsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/settings/years');
 });

@@ -5,7 +5,7 @@ import '../../core/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _analysisProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _analysisProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, termId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/exams/analysis/$termId');

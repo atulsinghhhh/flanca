@@ -7,7 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _marksSheetProvider = FutureProvider.autoDispose
+final _marksSheetProvider = FutureProvider
     .family<Map<String, dynamic>, String>((ref, examId) async {
       final api = ref.watch(apiClientProvider);
       return api.get<Map<String, dynamic>>('/exams/$examId/marks');

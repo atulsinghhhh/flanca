@@ -7,7 +7,7 @@ import '../../core/format.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final stockItemsProvider = FutureProvider.autoDispose((ref) async {
+final stockItemsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   final data = await api.get<Map<String, dynamic>>('/stock/items');
   return (data['items'] as List).cast<Map<String, dynamic>>();

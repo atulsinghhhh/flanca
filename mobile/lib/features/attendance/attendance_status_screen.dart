@@ -8,7 +8,7 @@ import 'attendance_mark_screen.dart';
 import 'attendance_register_screen.dart';
 import 'attendance_shortage_screen.dart';
 
-final attendanceStatusProvider = FutureProvider.autoDispose((ref) async {
+final attendanceStatusProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/attendance/status');
 });

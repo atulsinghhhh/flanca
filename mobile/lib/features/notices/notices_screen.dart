@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'notice_compose_screen.dart';
 
-final noticesProvider = FutureProvider.autoDispose((ref) async {
+final noticesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/notices');
 });

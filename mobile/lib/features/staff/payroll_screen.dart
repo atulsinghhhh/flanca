@@ -27,7 +27,7 @@ const _modes = ['CASH', 'BANK', 'UPI'];
 
 /// Key is "year-month"; a plain String keeps the provider family
 /// straightforward without a bespoke record/equatable type.
-final _payrollProvider = FutureProvider.autoDispose
+final _payrollProvider = FutureProvider
     .family<Map<String, dynamic>, String>((ref, key) async {
       final parts = key.split('-');
       final year = int.parse(parts[0]);

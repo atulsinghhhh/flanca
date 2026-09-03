@@ -6,7 +6,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../core/theme/app_theme.dart';
 
-final _homeworkDetailProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _homeworkDetailProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, id) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/homework/$id');

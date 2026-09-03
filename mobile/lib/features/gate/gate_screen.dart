@@ -6,12 +6,12 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _gateVisitorsProvider = FutureProvider.autoDispose((ref) async {
+final _gateVisitorsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/gate/visitors');
 });
 
-final _gatePassesProvider = FutureProvider.autoDispose((ref) async {
+final _gatePassesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/gate/passes');
 });

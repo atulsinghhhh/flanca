@@ -9,7 +9,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final _importBatchesProvider = FutureProvider.autoDispose((ref) async {
+final _importBatchesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/import');
 });
@@ -216,7 +216,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   }
 }
 
-final _importBatchProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((ref, id) async {
+final _importBatchProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, id) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/import/$id');
 });

@@ -7,7 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 
-final myStaffAttendanceProvider = FutureProvider.autoDispose((ref) async {
+final myStaffAttendanceProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/attendance/staff/me');
 });

@@ -50,7 +50,7 @@ Tone enquiryStatusTone(String status) => switch (status) {
   _ => Tone.info,
 };
 
-final _applicationsProvider = FutureProvider.autoDispose
+final _applicationsProvider = FutureProvider
     .family<List<Map<String, dynamic>>, String?>((ref, status) async {
       final api = ref.watch(apiClientProvider);
       final data = await api.get<Map<String, dynamic>>(
@@ -60,7 +60,7 @@ final _applicationsProvider = FutureProvider.autoDispose
       return (data['applications'] as List).cast<Map<String, dynamic>>();
     });
 
-final _enquiriesProvider = FutureProvider.autoDispose
+final _enquiriesProvider = FutureProvider
     .family<List<Map<String, dynamic>>, String?>((ref, status) async {
       final api = ref.watch(apiClientProvider);
       final data = await api.get<Map<String, dynamic>>(

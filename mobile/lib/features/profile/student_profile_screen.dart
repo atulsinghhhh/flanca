@@ -7,7 +7,7 @@ import '../../core/auth/auth_state.dart';
 /// the office's full directory (that stays office-only/web-only). Shared by
 /// the Profile tab, and the "my attendance"/"my timetable" screens the Home
 /// dashboard's quick actions send a student/parent to.
-final studentProfileProvider = FutureProvider.autoDispose((ref) async {
+final studentProfileProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/students/me');
 });

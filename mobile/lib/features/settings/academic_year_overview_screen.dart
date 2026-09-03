@@ -7,7 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../calendar/calendar_screen.dart' show toneForEventKind, kindLabel;
 
-final _yearOverviewProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _yearOverviewProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, yearId) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/settings/years/$yearId/overview');

@@ -8,7 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_widgets.dart';
 import 'certificate_vocab.dart';
 
-final _certificateDetailProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _certificateDetailProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, id) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/certificates/$id');

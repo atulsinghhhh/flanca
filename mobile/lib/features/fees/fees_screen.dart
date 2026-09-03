@@ -12,7 +12,7 @@ import 'pay_now_button.dart';
 /// rather than drifting a point or two apart screen to screen.
 const _metaStyle = TextStyle(color: AppColors.ink3, fontSize: 12.5);
 
-final feesProvider = FutureProvider.autoDispose((ref) async {
+final feesProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/fees/me');
 });

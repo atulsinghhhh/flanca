@@ -11,12 +11,12 @@ import 'exam_result_analysis_screen.dart';
 /// paper in. Deliberately NOT sharing examTermsProvider/`/exams/terms`: that
 /// list is correct for marks entry but would leak subject-teacher classes
 /// into this screen too.
-final _reportCardTermsProvider = FutureProvider.autoDispose((ref) async {
+final _reportCardTermsProvider = FutureProvider((ref) async {
   final api = ref.watch(apiClientProvider);
   return api.get<Map<String, dynamic>>('/report-cards/terms');
 });
 
-final _termClassesProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>(
+final _termClassesProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, termName) async {
     final api = ref.watch(apiClientProvider);
     return api.get<Map<String, dynamic>>('/report-cards/terms/${Uri.encodeComponent(termName)}');
