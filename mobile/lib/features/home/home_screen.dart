@@ -20,6 +20,8 @@ import '../fees/fees_office_screen.dart';
 import '../staff/staff_list_screen.dart';
 import '../admissions/admissions_screen.dart';
 import '../notices/notices_screen.dart';
+import '../accounts/accounts_screen.dart';
+import '../library/library_home_screen.dart';
 import 'home_search.dart';
 
 final homeDataProvider = FutureProvider((ref) async {
@@ -85,6 +87,8 @@ class HomeScreen extends ConsumerWidget {
                         isFamily:
                             actor?.hasAnyRole(['STUDENT', 'PARENT']) ?? false,
                         isOffice: actor?.isOffice ?? false,
+                        isMoney: actor?.isMoney ?? false,
+                        isLibrary: actor?.isLibrary ?? false,
                       ),
                     ),
                   ),
@@ -280,12 +284,16 @@ class _DashboardBody extends StatelessWidget {
     required this.isTeaching,
     required this.isFamily,
     required this.isOffice,
+    required this.isMoney,
+    required this.isLibrary,
   });
 
   final Map<String, dynamic> data;
   final bool isTeaching;
   final bool isFamily;
   final bool isOffice;
+  final bool isMoney;
+  final bool isLibrary;
 
   @override
   Widget build(BuildContext context) {
@@ -325,8 +333,13 @@ class _DashboardBody extends StatelessWidget {
           // own" — src/app/api/mobile/v1/attendance/status/route.ts), so
           // office roles land on the same school-wide screen a teacher does,
           // not the family-only MyAttendanceScreen.
+          //
+          // But Attendance/Homework/Timetable/PTM are academic-day
+          // concerns — a pure ACCOUNTANT or LIBRARIAN account (neither
+          // isOffice, isTeaching, nor isFamily) has no reason to land on any
+          // of them, and used to get all four with nothing of their own.
           cards: [
-            if (isOffice) ...[
+            if (isMoney) ...[
               AppActionCard(
                 icon: Icons.account_balance_wallet_outlined,
                 label: 'Fee collection',
@@ -335,6 +348,8 @@ class _DashboardBody extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const FeesOfficeScreen()),
                 ),
               ),
+            ],
+            if (isOffice) ...[
               AppActionCard(
                 icon: Icons.badge_outlined,
                 label: 'Staff',
@@ -360,45 +375,68 @@ class _DashboardBody extends StatelessWidget {
                 ),
               ),
             ],
-            AppActionCard(
-              icon: Icons.fact_check_outlined,
-              label: 'Attendance',
-              tone: Tone.good,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => isFamily
-                      ? const MyAttendanceScreen()
-                      : const AttendanceStatusScreen(),
+            if (isMoney) ...[
+              AppActionCard(
+                icon: Icons.point_of_sale_outlined,
+                label: 'Accounts',
+                tone: Tone.info,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AccountsScreen()),
                 ),
               ),
-            ),
-            AppActionCard(
-              icon: Icons.menu_book_outlined,
-              label: 'Homework',
-              tone: Tone.info,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const HomeworkListScreen()),
-              ),
-            ),
-            AppActionCard(
-              icon: Icons.grid_view_outlined,
-              label: 'Timetable',
-              tone: Tone.warn,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => isFamily
-                      ? const MyTimetableScreen()
-                      : const TimetableScreen(),
+            ],
+            if (isLibrary) ...[
+              AppActionCard(
+                icon: Icons.local_library_outlined,
+                label: 'Library',
+                tone: Tone.brand,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LibraryHomeScreen()),
                 ),
               ),
-            ),
-            AppActionCard(
-              icon: Icons.groups_outlined,
-              label: 'PTM',
-              tone: Tone.brand,
-              onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => const PtmScreen())),
-            ),
+            ],
+            if (isOffice || isTeaching || isFamily) ...[
+              AppActionCard(
+                icon: Icons.fact_check_outlined,
+                label: 'Attendance',
+                tone: Tone.good,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => isFamily
+                        ? const MyAttendanceScreen()
+                        : const AttendanceStatusScreen(),
+                  ),
+                ),
+              ),
+              AppActionCard(
+                icon: Icons.menu_book_outlined,
+                label: 'Homework',
+                tone: Tone.info,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const HomeworkListScreen()),
+                ),
+              ),
+              AppActionCard(
+                icon: Icons.grid_view_outlined,
+                label: 'Timetable',
+                tone: Tone.warn,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => isFamily
+                        ? const MyTimetableScreen()
+                        : const TimetableScreen(),
+                  ),
+                ),
+              ),
+              AppActionCard(
+                icon: Icons.groups_outlined,
+                label: 'PTM',
+                tone: Tone.brand,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PtmScreen()),
+                ),
+              ),
+            ],
           ],
         ),
         if (isTeaching) ...[
